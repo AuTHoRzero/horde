@@ -30,4 +30,4 @@ while zapros==1:
 		week='eror'
 	response_json = json.loads(response.text)
 	result = response_json["schedule"][week]
-	jprint(result)
+	print(result)
