@@ -36,4 +36,4 @@ while zapros==1:
 		else:
 			print(f"Request returns code response.status_code")
 	except:
-			print("Request to api failed")
+			print("No data")
