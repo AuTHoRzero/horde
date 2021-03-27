@@ -1,4 +1,4 @@
-#libraries    
+#libraries
 import sqlite3
 import logging
 from aiogram.dispatcher.filters import Text
@@ -7,14 +7,14 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 #Bot object
-bot= Bot(token='')
+bot= Bot(token='1779209869:AAEpQzdYlcn-9Kqx1wVfQ2-tTrAIOAwprCY')
 #Bot dispetcher
 dp = Dispatcher(bot)
 #Buttons
 #users database
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
-cur.execute('CREATE TABLE users(user_id INTEGER)')
+cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, user_group TEXT)')
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
@@ -24,7 +24,7 @@ async def start(message : types.Message):
         cur = conn.cursor()
         cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}")')
         conn.commit()
-    except Exception as e: 
+    except Exception as e:
         print(e)
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
@@ -37,8 +37,17 @@ async def get_profile(msg: types.Message):
     cur.execute(f'SELECT * FROM users WHERE user_id = "{msg.from_user.id}"')
     result = cur.fetchall()
     await bot.send_message(msg.from_user.id, f'ID = {list(result[0])[0]}')
+###@dp.message_handler(content_types=["text"])
+####async def insert_group(msg: types.Message):
+    
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
+
+
+
+
+
+
 
 
 
