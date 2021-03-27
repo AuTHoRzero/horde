@@ -6,19 +6,29 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from config import bot_token
+from aiogram.utils.helper import Helper, HelperMode, ListItem
+import keyboard as keyboard
+import datetime
+import calendar
+from datetime import date
 #Bot object
-bot= Bot(token='1779209869:AAEpQzdYlcn-9Kqx1wVfQ2-tTrAIOAwprCY')
+bot= Bot(token=bot_token)
 #Bot dispetcher
 dp = Dispatcher(bot)
 #Buttons
+#datetime
+today = date.today()
+calendar.day_name[today.weekday()]
 #users database
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
-cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, user_group TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER)')
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
-    await message.answer('Добро пожаловать в petroshedulebot, мои создатели: \nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55')
+    await message.answer('Добро пожаловать в petroshedulebot, мои создатели: \nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55', reply_markup=keyboard.button_who)
+    await message.answer(today)
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
@@ -37,18 +47,6 @@ async def get_profile(msg: types.Message):
     cur.execute(f'SELECT * FROM users WHERE user_id = "{msg.from_user.id}"')
     result = cur.fetchall()
     await bot.send_message(msg.from_user.id, f'ID = {list(result[0])[0]}')
-###@dp.message_handler(content_types=["text"])
-####async def insert_group(msg: types.Message):
-    
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
-
-
-
-
-
-
-
-
-
-
+    
