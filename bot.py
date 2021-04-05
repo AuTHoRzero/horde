@@ -67,7 +67,7 @@ async def group_number(message: types.Message, state: FSMContext):
         md.text(md.text('Ваша группа:', 
         md.bold(data['group']))), 
         parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup=
+        reply_markup= keyboard.button_go_main
         )
         grouper = md.text(md.text(md.bold(data['group'])))
         data = markdown(grouper)
@@ -87,8 +87,20 @@ async def teacher_register(message: types.Message):
         'Данная функция находится в разработке, пожалуйста попробуйте позднее',
         )
 
-#@dp.message_handler(text=['Настройки'])
-#async def setting(message: types.Message):
+@dp.message_handler(text=['Настройки'])
+async def setting(message: types.Message):
+    await message.answer('В данном меню вы можете настроить ежедневные уведомления о парах на сегодняшний день', 
+    reply_markup=keyboard.button_notify,
+    )
+
+
+@dp.message_handler(text=['Получить расписание'])
+async def schedule_menu(message: types.Message):
+    await message.answer('Выберите на какой день получить расписание', 
+    reply_markup=keyboard.button_schedule_choise,
+    )
+
+
 @dp.message_handler(text=['Перейти в главное меню'])
 async def main_menu (message: types.Message):
     await bot.send_message(message.from_user.id, 
