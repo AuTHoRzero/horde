@@ -10,6 +10,7 @@ import requests
 import json
 import schedule
 import time
+import random
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher, FSMContext
@@ -100,15 +101,28 @@ async def teacher_register(message: types.Message):
 
 @dp.message_handler(text=['Настройки'])
 async def setting(message: types.Message):
-    await message.answer('В данном меню вы можете настроить ежедневные уведомления о парах на сегодняшний день', 
+    await message.answer('Добро пожаловать в меню настроек', 
     reply_markup=keyboard.button_notify,
     )
 
 
+@dp.message_handler(text=['Сменить группу'])
+async def rewrite (message: types.Message):
+    con = sqlite3.connect('users_database.db')
+    cur = con.cursor()
+    cur.execute(f'DELETE from users WHERE user_id = "{message.from_user.id}"')
+    con.commit()
+    cur.close()
+    await message.answer('Готово')
+    await States.group.set()
+    await message.answer('Введите новый номер группы')
+    
+
+
 @dp.message_handler(text=['Установить время, когда приходят уведомления'])
 async def time_quest (message: types.Message):
-    await message.answer('Установите время в формате: 0:00')
-    schedule.every().day.at("20:48").do(schedule_today)
+    await message.answer('Функция в разработке')
+
 
 
 @dp.message_handler(text=['Включение/Выключение уведомлений'])
@@ -188,7 +202,6 @@ async def main_menu (message: types.Message):
         )
 
 
-
 @dp.message_handler(text=['Мой профиль'])
 async def get_profile(message: types.Message):
     conn = sqlite3.connect('users_database.db')
@@ -200,8 +213,12 @@ async def get_profile(message: types.Message):
 
 @dp.message_handler(text=['Помощь'])
 async def user_help (message: types.Message):
-    await message.answer('ТУТ НИЧЕГО НЕТ, ПОМОЩИ ТОЖЕ НЕТ.', reply_markup = keyboard.btn_back)
-
+    photo = ['https://sun9-45.userapi.com/impg/L_ZjDqZoxr0-Ps0fQi0-c48PjJ-UWJk64exZqw/HrcqjPtfIjE.jpg?size=840x737&quality=96&sign=e78ad3ba428e817729e80c0f02d249df&type=album', 
+    'https://sun9-30.userapi.com/impg/S-bSLtCaDlC1bcUwMCDlCAyzerrNVqFgw5Ygpg/BoLXpwQ1HcY.jpg?size=608x770&quality=96&sign=e101f67bcaa95f1aec2d52a651d24cef&type=album', 
+    'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
+    ]
+    await message.answer('Не готово...', reply_markup = keyboard.btn_back)
+    await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
