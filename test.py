@@ -6,6 +6,8 @@ import keyboard as keyboard
 import datetime
 import calendar
 import lxml
+import aioschedule
+import asyncio
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher, FSMContext
