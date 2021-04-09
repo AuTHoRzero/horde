@@ -8,9 +8,10 @@ import calendar
 import lxml
 import requests
 import json
-import schedule
 import time
 import random
+import asyncio
+import aioschedule
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher, FSMContext
@@ -47,7 +48,7 @@ next_day = today_day + 1
 #users database
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
-cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
@@ -119,21 +120,37 @@ async def rewrite (message: types.Message):
     
 
 
-@dp.message_handler(text=['Установить время, когда приходят уведомления'])
+@dp.message_handler(text=['Время уведомлений'])
 async def time_quest (message: types.Message):
     await message.answer('Функция в разработке')
+    await States.setting.set()
 
 
 
-@dp.message_handler(text=['Включение/Выключение уведомлений'])
+@dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
    await States.on_off.set()
    await message.answer('Состояние успешно изменено, текущее состояние:\n')
 
 
-#@dp.message_handler(state=States.on_off)
-#async def on_off_change (message: types.Message):
-#    await message.answer('Hi')
+@dp.message_handler(state=States.setting)
+async def times_setting_set (message: types.Message, state = FSMContext):
+    async with state.proxy() as times:
+        times['times_set'] = message.text
+        await bot.send_message(message.chat.id, 
+        md.text(md.text('Установленное время:', 
+        md.bold(times['times_set']))), 
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup= keyboard.button_go_main
+        )
+        timers = md.text(md.text(md.bold(times['times_set'])))
+        rework = markdown(timers)
+        setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
+        connect = sqlite3.connect('users_database.db')
+        cur = connect.cursor()
+        cur.execute(f'INSERT INTO users VALUES WHERE user_id = "{message.from_user.id}"("{setted_time}")')
+        connect.commit()
+        cut.close()
 
 
 @dp.message_handler(text=['Получить расписание'])
@@ -145,7 +162,7 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=['Расписание на сегодня'])
 async def schedule_today(message: types.Message):
-    await message.answer(f'День недели: {days_naming[today_day]}')
+    await message.answer(f'Сегодня: {days_naming[today_day]}')
     con = sqlite3.connect('users_database.db')
     cur = con.cursor()
     cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
@@ -157,19 +174,23 @@ async def schedule_today(message: types.Message):
     except:
         await message.answer('Нет данных о парах на сегодня, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     else:
-        for i in range(len(schedule)):
-            lesson_json = schedule[str(i+1)][0]
-            lesson = lesson_json['lesson']
-            teacher = lesson_json['teacher']
-            classroom = lesson_json['classroom']
-            period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-            reply_message = f'{period}'
-            await bot.send_message(message.from_user.id, reply_message)
+        for i in range(len(schedule)+1):
+            try:
+                lesson_json = schedule[str(i+1)][0]
+                lesson = lesson_json['lesson']
+                teacher = lesson_json['teacher']
+                classroom = lesson_json['classroom']
+                period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
+                reply_message = f'{period}'
+                await bot.send_message(message.from_user.id, reply_message)
+            except:
+                pass
+
 
 
 @dp.message_handler(text=['Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
-    await message.answer(f'День недели: {days_naming[today_day]}')
+    await message.answer(f'Завтра: {days_naming[next_day]}')
     con = sqlite3.connect('users_database.db')
     cur = con.cursor()
     cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
@@ -181,17 +202,20 @@ async def schedule_next_day(message: types.Message):
     except:
         await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     else:
-        for i in range(len(schedule)):
+        for i in range(len(schedule)+1):
             try:
+                global reply_message_1
                 lesson_json = schedule[str(i+1)][0]
                 lesson = lesson_json['lesson']
                 teacher = lesson_json['teacher']
                 classroom = lesson_json['classroom']
                 period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                reply_message = f'{period}'
-                await bot.send_message(message.from_user.id, reply_message)
+                reply_message_1 = f'{period}'
+                await bot.send_message(message.from_user.id, reply_message_1)
             except:
                 pass
+#                await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+#        await bot.send_message(message.from_user.id, reply_message_1)       
 
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
@@ -220,6 +244,7 @@ async def user_help (message: types.Message):
     await message.answer('Не готово...', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
 
+
 if __name__=='__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True,)
     
