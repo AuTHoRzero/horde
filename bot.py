@@ -123,34 +123,35 @@ async def rewrite (message: types.Message):
 @dp.message_handler(text=['Время уведомлений'])
 async def time_quest (message: types.Message):
     await message.answer('Функция в разработке')
-    await States.setting.set()
+#    await States.setting.set()
 
 
 
 @dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
-   await States.on_off.set()
-   await message.answer('Состояние успешно изменено, текущее состояние:\n')
+#   await States.on_off.set()
+#   await message.answer('Состояние успешно изменено, текущее состояние:\n')
+    await message.answer('Функция в разработке')
 
 
-@dp.message_handler(state=States.setting)
-async def times_setting_set (message: types.Message, state = FSMContext):
-    async with state.proxy() as times:
-        times['times_set'] = message.text
-        await bot.send_message(message.chat.id, 
-        md.text(md.text('Установленное время:', 
-        md.bold(times['times_set']))), 
-        parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup= keyboard.button_go_main
-        )
-        timers = md.text(md.text(md.bold(times['times_set'])))
-        rework = markdown(timers)
-        setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
-        connect = sqlite3.connect('users_database.db')
-        cur = connect.cursor()
-        cur.execute(f'INSERT INTO users VALUES WHERE user_id = "{message.from_user.id}"("{setted_time}")')
-        connect.commit()
-        cut.close()
+#@dp.message_handler(state=States.setting)
+#async def times_setting_set (message: types.Message, state = FSMContext):
+#    async with state.proxy() as times:
+#        times['times_set'] = message.text
+#       await bot.send_message(message.chat.id, 
+#       md.text(md.text('Установленное время:', 
+#       md.bold(times['times_set']))), 
+#        parse_mode=ParseMode.MARKDOWN_V2,
+#        reply_markup= keyboard.button_go_main
+#        )
+#        timers = md.text(md.text(md.bold(times['times_set'])))
+#        rework = markdown(timers)
+#        setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
+#        connect = sqlite3.connect('users_database.db')
+#        cur = connect.cursor()
+#        cur.execute(f'INSERT INTO users VALUES WHERE user_id = "{message.from_user.id}"("{setted_time}")')
+#        connect.commit()
+#        cut.close()
 
 
 @dp.message_handler(text=['Получить расписание'])
