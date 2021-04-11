@@ -2,7 +2,8 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
-#Button back
+#Button need
+reset_button = KeyboardButton('Сменить группу')
 back_btn = KeyboardButton('Назад')
 btn_back = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(back_btn)
 #Group 1    
@@ -26,6 +27,8 @@ today_button = KeyboardButton('Расписание на сегодня')
 next_day_button = KeyboardButton('Расписание на завтра')
 button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(today_button).add(next_day_button).add(back_btn)
 #Group 6
-time_set_button = KeyboardButton('Установить время, когда приходят уведомления')
-notify_switch_button = KeyboardButton('Включение/Выключение уведомлений')
-button_notify = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(time_set_button).add(notify_switch_button).add(back_btn)
+time_set_button = KeyboardButton('Время уведомлений')
+notify_switch_button = KeyboardButton('Вкл/Выкл уведомлений')
+button_notify = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(time_set_button).add(notify_switch_button).add(reset_button).add(back_btn)
+#Group 7
+
