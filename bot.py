@@ -261,9 +261,7 @@ async def user_help (message: types.Message):
     ]
     await message.answer('Не готово...', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-    if message.text == '117':
-        print ('44')
-        
+    
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True,)
