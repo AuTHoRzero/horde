@@ -22,7 +22,7 @@ from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButt
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.helper import Helper, HelperMode, ListItem
 from config import bot_token, api_key
-from datetime import date
+from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
 #Logging
@@ -35,7 +35,7 @@ class States(StatesGroup):
     setting = State()
     profile = State()
 #Bot object
-bot= Bot(token=bot_token)
+bot = Bot(token=bot_token)
 #Bot dispetcher
 dp = Dispatcher(bot, storage=MemoryStorage())
 #Weekday and date
@@ -45,6 +45,8 @@ days_naming_en = ["monday", "tuesday", "wednesday", "thursday", "friday","saturd
 today = date.today()
 calendar.day_name[today.weekday()]
 next_day = today_day + 1
+if next_day == 7:
+    next_day = 0
 #users database
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
@@ -52,12 +54,17 @@ cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
+    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
     await message.answer(
         'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
         reply_markup=keyboard.button_register
         )
+#    await bot.send_photo(message.from_user.id, 
+#        'https://www.directum.ru/application/images/catalog/34597121.PNG', 
+#        texter, 
+#        reply_markup=keyboard.button_register,
+#        )
     await message.answer(f'Сегодня: {today}\n{days_naming[today_day]}')
-    print (next_day)
 
 
 @dp.message_handler(text=['Регистрация'])
@@ -88,7 +95,7 @@ async def group_number(message: types.Message, state: FSMContext):
         print(group)
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
-        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","{group}")')
+        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","{group}","0")')
         conn.commit()
         await state.finish()
 
@@ -114,44 +121,44 @@ async def rewrite (message: types.Message):
     cur.execute(f'DELETE from users WHERE user_id = "{message.from_user.id}"')
     con.commit()
     cur.close()
-    await message.answer('Готово')
     await States.group.set()
-    await message.answer('Введите новый номер группы')
+    await message.answer('Группа успешно сброшена\nВведите новый номер группы:')
     
 
 
 @dp.message_handler(text=['Время уведомлений'])
 async def time_quest (message: types.Message):
     await message.answer('Функция в разработке')
-#    await States.setting.set()
+    await message.answer('Введите время в формате: 00:00')
+    await States.setting.set()
 
 
 
 @dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
-#   await States.on_off.set()
-#   await message.answer('Состояние успешно изменено, текущее состояние:\n')
+ #  await States.on_off.set()
+ #  await message.answer('Состояние успешно изменено, текущее состояние:\n')
     await message.answer('Функция в разработке')
 
-
-#@dp.message_handler(state=States.setting)
-#async def times_setting_set (message: types.Message, state = FSMContext):
-#    async with state.proxy() as times:
-#        times['times_set'] = message.text
-#       await bot.send_message(message.chat.id, 
-#       md.text(md.text('Установленное время:', 
-#       md.bold(times['times_set']))), 
-#        parse_mode=ParseMode.MARKDOWN_V2,
-#        reply_markup= keyboard.button_go_main
-#        )
-#        timers = md.text(md.text(md.bold(times['times_set'])))
-#        rework = markdown(timers)
-#        setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
-#        connect = sqlite3.connect('users_database.db')
-#        cur = connect.cursor()
-#        cur.execute(f'INSERT INTO users VALUES WHERE user_id = "{message.from_user.id}"("{setted_time}")')
-#        connect.commit()
-#        cut.close()
+@dp.message_handler(state=States.setting)
+async def times_setting_set (message: types.Message, state = FSMContext):
+    async with state.proxy() as times:
+        times['times_set'] = message.text
+        await bot.send_message(message.chat.id, 
+        md.text(md.text('Установленное время:', 
+        md.bold(times['times_set']))), 
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup= keyboard.button_go_main
+        )
+        timers = md.text(md.text(md.bold(times['times_set'])))
+        rework = markdown(timers)
+        setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
+        connect = sqlite3.connect('users_database.db')
+        cur = connect.cursor()
+        cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
+        connect.commit()
+        cur.close()
+        await state.finish()
 
 
 @dp.message_handler(text=['Получить расписание'])
@@ -205,18 +212,23 @@ async def schedule_next_day(message: types.Message):
     else:
         for i in range(len(schedule)+1):
             try:
-                global reply_message_1
                 lesson_json = schedule[str(i+1)][0]
                 lesson = lesson_json['lesson']
                 teacher = lesson_json['teacher']
                 classroom = lesson_json['classroom']
                 period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                reply_message_1 = f'{period}'
-                await bot.send_message(message.from_user.id, reply_message_1)
+                reply_message = f'{period}'
+                await bot.send_message(message.from_user.id, reply_message)
             except:
                 pass
 #                await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-#        await bot.send_message(message.from_user.id, reply_message_1)       
+
+
+@dp.message_handler(text=['zxc'])
+async def zxc(message: types.Message):
+    await message.answer('Ты в муте, бездарь')
+    await bot.send_photo(message.from_user.id, 'https://i.pinimg.com/736x/17/b9/09/17b909bc23b89a24c163cdde88025aed.jpg')
+
 
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
@@ -233,7 +245,12 @@ async def get_profile(message: types.Message):
     cur = conn.cursor()
     cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
     result = cur.fetchall()
-    await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}', reply_markup=keyboard.btn_back)
+    await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+
+
+@dp.message_handler(text=['Zzz'])
+async def scheduler(message:types.Message):
+    await aioschedule.every(5).seconds.do(get_profile)
 
 
 @dp.message_handler(text=['Помощь'])
@@ -244,7 +261,9 @@ async def user_help (message: types.Message):
     ]
     await message.answer('Не готово...', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-
+    if message.text == '117':
+        print ('44')
+        
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True,)
