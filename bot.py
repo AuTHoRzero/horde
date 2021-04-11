@@ -137,8 +137,15 @@ async def time_quest (message: types.Message):
 @dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
  #  await States.on_off.set()
- #  await message.answer('Состояние успешно изменено, текущее состояние:\n')
+    status = 'OFF'
     await message.answer('Функция в разработке')
+    await message.answer(f'Состояние успешно изменено, текущее состояние:\n{status}')
+
+
+#@dp.message_handlers(state=States.on_off)
+#async def on_off (message: types.Message):
+#    
+
 
 @dp.message_handler(state=States.setting)
 async def times_setting_set (message: types.Message, state = FSMContext):
