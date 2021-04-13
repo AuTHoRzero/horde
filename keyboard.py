@@ -25,7 +25,7 @@ button_go_main = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=Tru
 #Group 5
 today_button = KeyboardButton('Расписание на сегодня')
 next_day_button = KeyboardButton('Расписание на завтра')
-button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(today_button).add(next_day_button).add(back_btn)
+button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True).add(today_button).add(next_day_button).add(back_btn)
 #Group 6
 time_set_button = KeyboardButton('Время уведомлений')
 notify_switch_button = KeyboardButton('Вкл/Выкл уведомлений')
