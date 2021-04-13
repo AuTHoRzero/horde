@@ -13,12 +13,12 @@ import random
 import asyncio
 import aioschedule
 
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher, FSMContext
+from aiogram import Bot, types, Dispatcher
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils import executor
-from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode, Message
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.helper import Helper, HelperMode, ListItem
 from config import bot_token, api_key
@@ -54,7 +54,11 @@ cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
-    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
+    conn = sqlite3.connect('users_database.db')
+    cur = conn.cursor()
+    cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+    conn.commit()
+#    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
     await message.answer(
         'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
         reply_markup=keyboard.button_register
@@ -95,7 +99,7 @@ async def group_number(message: types.Message, state: FSMContext):
         print(group)
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
-        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","{group}","0")')
+        cur.execute(f'UPDATE users SET group_number = "{group}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
         await state.finish()
 
@@ -116,13 +120,13 @@ async def setting(message: types.Message):
 
 @dp.message_handler(text=['Сменить группу'])
 async def rewrite (message: types.Message):
-    con = sqlite3.connect('users_database.db')
-    cur = con.cursor()
-    cur.execute(f'DELETE from users WHERE user_id = "{message.from_user.id}"')
-    con.commit()
-    cur.close()
+#    con = sqlite3.connect('users_database.db')
+#    cur = con.cursor()
+#    cur.execute(f'DELETE from users WHERE user_id = "{message.from_user.id}"')
+#    con.commit()
+#    cur.close()
     await States.group.set()
-    await message.answer('Группа успешно сброшена\nВведите новый номер группы:')
+    await message.answer('Введите новый номер группы:')
     
 
 
@@ -177,58 +181,75 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=['Расписание на сегодня'])
 async def schedule_today(message: types.Message):
-    await message.answer(f'Сегодня: {days_naming[today_day]}')
-    con = sqlite3.connect('users_database.db')
-    cur = con.cursor()
-    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-    res = cur.fetchall()
-    response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-    all_schedule = json.loads(response.text)
     try:
-        schedule = all_schedule["schedule"][days_naming_en[today_day]]
-    except:
-        await message.answer('Нет данных о парах на сегодня, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-    else:
-        for i in range(len(schedule)+1):
-            try:
-                lesson_json = schedule[str(i+1)][0]
-                lesson = lesson_json['lesson']
-                teacher = lesson_json['teacher']
-                classroom = lesson_json['classroom']
-                period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                reply_message = f'{period}'
-                await bot.send_message(message.from_user.id, reply_message)
-            except:
-                pass
+        await message.answer(f'Сегодня: {days_naming[today_day]}')
+        con = sqlite3.connect('users_database.db')
+        cur = con.cursor()
+        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+        res = cur.fetchall()
+        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
+        all_schedule = json.loads(response.text)
+        try:
+            schedule = all_schedule["schedule"][days_naming_en[today_day]]
+        except Exception:
+            await message.answer('Нет данных о парах на сегодня, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+        else:
+            reply_message = ""
+            for i in range(len(schedule)+1):
+                try:
+                    lesson_json = schedule[str(i+1)][0]
+                    lesson = lesson_json['lesson']
+                    teacher = lesson_json['teacher']
+                    classroom = lesson_json['classroom']
+                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
+                    reply_message = f'{reply_message}\n{period}'
+                except Exception:
+                    pass
+            await bot.send_message(message.from_user.id, reply_message)
+    except Exception:
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        conn.commit()
 
 
 
 @dp.message_handler(text=['Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
-    await message.answer(f'Завтра: {days_naming[next_day]}')
-    con = sqlite3.connect('users_database.db')
-    cur = con.cursor()
-    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-    res = cur.fetchall()
-    response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-    all_schedule = json.loads(response.text)
     try:
-        schedule = all_schedule["schedule"][days_naming_en[next_day]]
-    except:
-        await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-    else:
-        for i in range(len(schedule)+1):
-            try:
-                lesson_json = schedule[str(i+1)][0]
-                lesson = lesson_json['lesson']
-                teacher = lesson_json['teacher']
-                classroom = lesson_json['classroom']
-                period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                reply_message = f'{period}'
-                await bot.send_message(message.from_user.id, reply_message)
-            except:
-                pass
-#                await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+        await message.answer(f'Завтра: {days_naming[next_day]}')
+        con = sqlite3.connect('users_database.db')
+        cur = con.cursor()
+        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+        res = cur.fetchall()
+        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
+        all_schedule = json.loads(response.text)
+        try:
+            schedule = all_schedule["schedule"][days_naming_en[next_day]]
+        except Exception:
+            await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+        else:
+            reply_message = ""
+            for i in range(len(schedule)+1):
+                try:
+                    lesson_json = schedule[str(i+1)][0]
+                    lesson = lesson_json['lesson']
+                    teacher = lesson_json['teacher']
+                    classroom = lesson_json['classroom']
+                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
+                    reply_message = f'{reply_message}\n{period}'
+                except Exception:
+                    pass
+#                   await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+            await bot.send_message(message.from_user.id, reply_message)
+
+    except Exception:
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        conn.commit()
 
 
 @dp.message_handler(text=['zxc'])
@@ -248,16 +269,19 @@ async def main_menu (message: types.Message):
 
 @dp.message_handler(text=['Мой профиль'])
 async def get_profile(message: types.Message):
-    conn = sqlite3.connect('users_database.db')
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-    result = cur.fetchall()
-    await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+    try:
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+        result = cur.fetchall()
+        await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+    except Exception:
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        conn.commit()
 
-
-@dp.message_handler(text=['Zzz'])
-async def scheduler(message:types.Message):
-    await aioschedule.every(5).seconds.do(get_profile)
 
 
 @dp.message_handler(text=['Помощь'])
@@ -269,6 +293,18 @@ async def user_help (message: types.Message):
     await message.answer('Не готово...', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
 
+
+#scheduler
+@dp.message_handler(text=['test'])
+async def scheduler(message: types.Message):
+#    aioschedule.every().day.at("17:58").do(schedule_next_day, message)
+    aioschedule.every(3).seconds.do(schedule_next_day, message)
+    while True:
+            await aioschedule.run_pending()
+            await asyncio.sleep(1)
+
+#async def on_startup(message: types.Message):
+#    asyncio.create_task(scheduler(message))
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
