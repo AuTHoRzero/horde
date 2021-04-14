@@ -21,7 +21,7 @@ from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode, Message
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.helper import Helper, HelperMode, ListItem
-from config import bot_token, api_key
+from config import bot_token, api_key, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
@@ -33,10 +33,9 @@ logging.basicConfig(level=logging.INFO)
 #States
 class States(StatesGroup):
     group = State()
-    on_off = State()
-    main = State()
     setting = State()
-    profile = State()
+    adm1 = State()
+    adm1_set = State()
 #Bot object
 bot = Bot(token=bot_token)
 #Bot dispetcher
@@ -237,13 +236,6 @@ async def schedule_next_day(message: types.Message):
         conn.commit()
 
 
-#@dp.message_handler(text=['zxc'])
-#async def zxc(message: types.Message):
-#    await message.answer('Ты в муте, бездарь')
-#    await bot.send_photo(message.from_user.id, 'https://i.pinimg.com/736x/17/b9/09/17b909bc23b89a24c163cdde88025aed.jpg')
-
-
-
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
 async def main_menu (message: types.Message):
     global x
@@ -262,7 +254,6 @@ async def get_profile(message: types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
-#        await message.answer('(((')
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         result = cur.fetchall()
         await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
@@ -275,7 +266,7 @@ async def get_profile(message: types.Message):
 
 
 
-@dp.message_handler(text=['Помощь'])
+@dp.message_handler(text="Помощь")
 async def user_help (message: types.Message):
     photo = ['https://sun9-45.userapi.com/impg/L_ZjDqZoxr0-Ps0fQi0-c48PjJ-UWJk64exZqw/HrcqjPtfIjE.jpg?size=840x737&quality=96&sign=e78ad3ba428e817729e80c0f02d249df&type=album', 
     'https://sun9-30.userapi.com/impg/S-bSLtCaDlC1bcUwMCDlCAyzerrNVqFgw5Ygpg/BoLXpwQ1HcY.jpg?size=608x770&quality=96&sign=e101f67bcaa95f1aec2d52a651d24cef&type=album', 
@@ -285,12 +276,51 @@ async def user_help (message: types.Message):
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
 
 
+@dp.message_handler(commands=['adm1_set'])
+async def Adm1_set(message: types.message, state=FSMContext):
+    await States.adm1_set.set()
+    await message.answer('Message:')
+
+
+@dp.message_handler(state=States.adm1_set)
+async def Adm1_setting(message: types.message, state=FSMContext):
+    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+        async with state.proxy() as usr:
+            global reworks
+            usr['bef'] = message.text
+            bef = md.text(md.text(md.bold(usr['bef'])))
+            reworkbef = markdown(bef)
+            reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
+            await bot.send_message(message.from_user.id, reworks)
+            await state.finish()
+
+
+
+@dp.message_handler(commands=['adm1'])
+async def Adm1(message: types.message, state=FSMContext):
+    await States.adm1.set()
+    await message.answer('user_id:')
+ 
+
+@dp.message_handler(state=States.adm1)
+async def Adm1_st(message: types.message, state=FSMContext):
+    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+        async with state.proxy() as usr:
+            global reworks
+            usr['us_id'] = message.text
+            bef = md.text(md.text(md.bold(usr['us_id'])))
+            rew = markdown(bef)
+            rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
+            await bot.send_message(rework1,reworks)
+            await state.finish()    
+
+
+
 #scheduler
 async def scheduler(message: types.Message, time):
     global x
     try:
         aioschedule.every().day.at(time).do(schedule_next_day, message)
-#        aioschedule.every(3).seconds.do(schedule_next_day, message)
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
