@@ -296,6 +296,8 @@ async def Adm1_setting(message: types.message, state=FSMContext):
             reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
             await bot.send_message(message.from_user.id, reworks)
             await state.finish()
+    else:
+        await message.answer('This command admin only') 
 
 
 
@@ -315,11 +317,14 @@ async def Adm1_st(message: types.message, state=FSMContext):
             rew = markdown(bef)
             rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
             await bot.send_message(rework1,reworks)
-            await state.finish()    
+            await state.finish()
+    else:
+        await message.answer('This command admin only')    
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
-    await bot.send_document(message.from_user.id, dbfile)
+    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+        await bot.send_document(message.from_user.id, dbfile)
 
 
 #scheduler
