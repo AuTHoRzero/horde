@@ -276,7 +276,7 @@ async def user_help (message: types.Message):
     'https://sun9-30.userapi.com/impg/S-bSLtCaDlC1bcUwMCDlCAyzerrNVqFgw5Ygpg/BoLXpwQ1HcY.jpg?size=608x770&quality=96&sign=e101f67bcaa95f1aec2d52a651d24cef&type=album', 
     'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
     ]
-    await message.answer('Не готово...', reply_markup = keyboard.btn_back)
+    await message.answer('Не готово...\nSend message to admins: /msgtadm', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
 
 #dop commands
