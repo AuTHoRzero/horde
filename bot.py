@@ -25,6 +25,9 @@ from config import bot_token, api_key
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
+#for use
+global x
+x = 0
 #Logging
 logging.basicConfig(level=logging.INFO)
 #States
@@ -54,9 +57,7 @@ cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
-    conn = sqlite3.connect('users_database.db')
-    cur = conn.cursor()
-    cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+    cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
 #    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
     await message.answer(
@@ -97,8 +98,6 @@ async def group_number(message: types.Message, state: FSMContext):
         data = markdown(grouper)
         group = ''.join(BeautifulSoup(data).findAll(text=True))
         print(group)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
         cur.execute(f'UPDATE users SET group_number = "{group}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
         await state.finish()
@@ -120,11 +119,6 @@ async def setting(message: types.Message):
 
 @dp.message_handler(text=['Сменить группу'])
 async def rewrite (message: types.Message):
-#    con = sqlite3.connect('users_database.db')
-#    cur = con.cursor()
-#    cur.execute(f'DELETE from users WHERE user_id = "{message.from_user.id}"')
-#    con.commit()
-#    cur.close()
     await States.group.set()
     await message.answer('Введите новый номер группы:')
     
@@ -140,15 +134,27 @@ async def time_quest (message: types.Message):
 
 @dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
- #  await States.on_off.set()
-    status = 'OFF'
     await message.answer('Функция в разработке')
-    await message.answer(f'Состояние успешно изменено, текущее состояние:\n{status}')
+    global x
+    x = x + 1
+    print (x)
+    if x == 2:
+        x = 0
+    if x == 0:
+        try:
+            await message.answer ('Уведомления отключены')
+            print (x)
+            await scheduler(message)
+        except:
+            print('IF 1')
+    if x == 1:
+        await message.answer('Уведомления включены')
+        try:
+            await scheduler(message)
+        except Exception:
+            print ('IF 2')
 
 
-#@dp.message_handlers(state=States.on_off)
-#async def on_off (message: types.Message):
-#    
 
 
 @dp.message_handler(state=States.setting)
@@ -164,10 +170,8 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         timers = md.text(md.text(md.bold(times['times_set'])))
         rework = markdown(timers)
         setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
-        connect = sqlite3.connect('users_database.db')
-        cur = connect.cursor()
         cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
-        connect.commit()
+        conn.commit()
         cur.close()
         await state.finish()
 
@@ -183,8 +187,6 @@ async def schedule_menu(message: types.Message):
 async def schedule_today(message: types.Message):
     try:
         await message.answer(f'Сегодня: {days_naming[today_day]}')
-        con = sqlite3.connect('users_database.db')
-        cur = con.cursor()
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         res = cur.fetchall()
         response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
@@ -208,9 +210,7 @@ async def schedule_today(message: types.Message):
             await bot.send_message(message.from_user.id, reply_message)
     except Exception:
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
 
@@ -219,8 +219,6 @@ async def schedule_today(message: types.Message):
 async def schedule_next_day(message: types.Message):
     try:
         await message.answer(f'Завтра: {days_naming[next_day]}')
-        con = sqlite3.connect('users_database.db')
-        cur = con.cursor()
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         res = cur.fetchall()
         response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
@@ -241,21 +239,17 @@ async def schedule_next_day(message: types.Message):
                     reply_message = f'{reply_message}\n{period}'
                 except Exception:
                     pass
-#                   await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
             await bot.send_message(message.from_user.id, reply_message)
 
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
 
-@dp.message_handler(text=['zxc'])
-async def zxc(message: types.Message):
-    await message.answer('Ты в муте, бездарь')
-    await bot.send_photo(message.from_user.id, 'https://i.pinimg.com/736x/17/b9/09/17b909bc23b89a24c163cdde88025aed.jpg')
+#@dp.message_handler(text=['zxc'])
+#async def zxc(message: types.Message):
+#    await message.answer('Ты в муте, бездарь')
+#    await bot.send_photo(message.from_user.id, 'https://i.pinimg.com/736x/17/b9/09/17b909bc23b89a24c163cdde88025aed.jpg')
 
 
 
@@ -272,6 +266,7 @@ async def get_profile(message: types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
+#        await message.answer('(((')
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         result = cur.fetchall()
         await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
@@ -279,7 +274,7 @@ async def get_profile(message: types.Message):
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
-        cur.execute(f'INSERT INTO users VALUES("{message.from_user.id}","0","0")')
+        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
 
@@ -295,16 +290,19 @@ async def user_help (message: types.Message):
 
 
 #scheduler
-@dp.message_handler(text=['test'])
 async def scheduler(message: types.Message):
-#    aioschedule.every().day.at("17:58").do(schedule_next_day, message)
-    aioschedule.every(3).seconds.do(schedule_next_day, message)
-    while True:
+    global x
+    try:
+        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+        result = cur.fetchall()
+        print([list(result[0])[2]][0])
+#        aioschedule.every().day.at([list(result[0])[2]][0]).do(schedule_next_day, message)
+        aioschedule.every(3).seconds.do(schedule_next_day, message)
+        while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
-
-#async def on_startup(message: types.Message):
-#    asyncio.create_task(scheduler(message))
+    except Exception:
+        print ('Trouble with schedule')
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
