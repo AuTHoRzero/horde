@@ -62,16 +62,16 @@ cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT
 async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
-#    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
-    await message.answer(
-        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
-        reply_markup=keyboard.button_register
-        )
-#    await bot.send_photo(message.from_user.id, 
-#        'https://www.directum.ru/application/images/catalog/34597121.PNG', 
-#        texter, 
-#        reply_markup=keyboard.button_register,
+    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
+#    await message.answer(
+#        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
+#        reply_markup=keyboard.button_register
 #        )
+    await bot.send_photo(message.from_user.id, 
+        'https://www.directum.ru/application/images/catalog/34597121.PNG', 
+        texter, 
+        reply_markup=keyboard.button_register,
+        )
     await message.answer(f'Сегодня: {today}\n{days_naming[today_day]}')
 
 
@@ -140,14 +140,18 @@ async def time_set (message: types.Message):
     result = cur.fetchall()
     time = [list(result[0])[2]][0]
     global x
+    global y
     x = x + 1
     if x == 2:
         x = 0
     if x == 0:
         await message.answer ('Уведомления отключены')
-    if x == 1:
-        await message.answer('Уведомления включены')
+    if x == 1 and y == 1:
+        await message.answer('Уведомления на пары след. дня включены')
         await scheduler(message, time)
+    elif x == 1 and y == 0:
+        await message.answer('Уведомления на пары текущего дня включены')
+        await scheduler_td(message, time)
 
 
 @dp.message_handler(state=States.setting)
@@ -168,6 +172,25 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
         await state.finish()
+
+
+@dp.message_handler(text=['Пары на сегодня/завтра'])
+async def change_day(message: types.Message):
+    await message.answer('На какой день вы хотите получать расписание в установленное время?', reply_markup=keyboard.btn_change_day)
+
+
+@dp.message_handler(text=['На сегодня'])
+async def pare_today(message: types.Message):
+    global y
+    y = 0
+    await message.answer('Вы будете получать уведомление на текущий день')
+
+
+@dp.message_handler(text=['На завтра'])
+async def pare_next_day(message: types.Message):
+    global y
+    y = 1
+    await message.answer('Вы будете получать уведомление на следующий день')
 
 
 @dp.message_handler(text=['Получить расписание'])
@@ -248,7 +271,7 @@ async def main_menu (message: types.Message):
     if x == 1:
         sost = 'Включены'
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить автоматическое получение получение расписания (Уведомление о парах на следующий день) или получить его вручную\nСостояние уведомлений: {sost}', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}', 
         reply_markup=keyboard.button_main,
         )
 
@@ -276,13 +299,13 @@ async def user_help (message: types.Message):
     'https://sun9-30.userapi.com/impg/S-bSLtCaDlC1bcUwMCDlCAyzerrNVqFgw5Ygpg/BoLXpwQ1HcY.jpg?size=608x770&quality=96&sign=e101f67bcaa95f1aec2d52a651d24cef&type=album', 
     'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
     ]
-    await message.answer('Не готово...\nSend message to admins: /msgtadm', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-
+    await message.answer('Не готово...\nОтправить сообщение разработчикам: /msgtadm', reply_markup = keyboard.btn_back)
+    
 #dop commands
 @dp.message_handler(commands=['msgtadm'])
 async def msgtoadmins(message: types.Message):
-    await message.answer('!!!Need to set telegram username!!!\nYour message:')
+    await message.answer('!!!Нужно обязательно указать ник телеграм!!!\nВаше сообщение:')
     await States.sndmsg.set()
 
 
@@ -293,8 +316,8 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
         bef = md.text(md.text(md.bold(msg['bef'])))
         reworkbef = markdown(bef)
         tgo = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
-        await bot.send_message(admin_id, f'{message.from_user.username}\nSays:\n{tgo}')
-        await bot.send_message(admin2_id, f'{message.from_user.username}\nSays:\n{tgo}')
+        await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
+        await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
         await state.finish()
 
 
@@ -358,6 +381,15 @@ async def scheduler(message: types.Message, time):
     except Exception:
         print ('Trouble with schedule')
 
+async def scheduler_td(message: types.Message, time):
+    global x
+    try:
+        aioschedule.every().day.at(time).do(schedule_today, message)
+        while x == 1:
+            await aioschedule.run_pending()
+            await asyncio.sleep(1)
+    except Exception:
+        print ('Trouble with schedule')
+
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
-    
