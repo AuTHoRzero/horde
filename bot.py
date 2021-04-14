@@ -39,6 +39,7 @@ class States(StatesGroup):
     setting = State()
     adm1 = State()
     adm1_set = State()
+    sndmsg = State()
 #Bot object
 bot = Bot(token=bot_token)
 #Bot dispetcher
@@ -277,6 +278,25 @@ async def user_help (message: types.Message):
     ]
     await message.answer('Не готово...', reply_markup = keyboard.btn_back)
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
+
+#dop commands
+@dp.message_handler(commands=['msgtadm'])
+async def msgtoadmins(message: types.Message):
+    await message.answer('!!!Need to set telegram username!!!\nYour message:')
+    await States.sndmsg.set()
+
+
+@dp.message_handler(state=States.sndmsg)
+async def msgtoadminist(message: types.Message, state= FSMContext):
+    async with state.proxy() as msg:
+        msg['bef'] = message.text
+        bef = md.text(md.text(md.bold(msg['bef'])))
+        reworkbef = markdown(bef)
+        tgo = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
+        await bot.send_message(admin_id, f'{message.from_user.username}\nSays:\n{tgo}')
+        await bot.send_message(admin2_id, f'{message.from_user.username}\nSays:\n{tgo}')
+        await state.finish()
+
 
 
 @dp.message_handler(commands=['adm1_set'])
