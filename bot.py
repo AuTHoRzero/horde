@@ -126,40 +126,32 @@ async def rewrite (message: types.Message):
 
 @dp.message_handler(text=['Время уведомлений'])
 async def time_quest (message: types.Message):
-    await message.answer('Функция в разработке')
-    await message.answer('Введите время в формате: 00:00')
+    await message.answer('После смены времени нужно будет снова включить уведомления\nВведите время в формате: 00:00')
     await States.setting.set()
 
 
 
 @dp.message_handler(text=['Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
-    await message.answer('Функция в разработке')
+    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+    result = cur.fetchall()
+    time = [list(result[0])[2]][0]
     global x
     x = x + 1
-    print (x)
     if x == 2:
         x = 0
     if x == 0:
-        try:
-            await message.answer ('Уведомления отключены')
-            print (x)
-            await scheduler(message)
-        except:
-            print('IF 1')
+        await message.answer ('Уведомления отключены')
     if x == 1:
         await message.answer('Уведомления включены')
-        try:
-            await scheduler(message)
-        except Exception:
-            print ('IF 2')
-
-
+        await scheduler(message, time)
 
 
 @dp.message_handler(state=States.setting)
 async def times_setting_set (message: types.Message, state = FSMContext):
     async with state.proxy() as times:
+        global x
+        x = 0
         times['times_set'] = message.text
         await bot.send_message(message.chat.id, 
         md.text(md.text('Установленное время:', 
@@ -172,7 +164,6 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
         cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
-        cur.close()
         await state.finish()
 
 
@@ -255,8 +246,13 @@ async def schedule_next_day(message: types.Message):
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
 async def main_menu (message: types.Message):
+    global x
+    if x == 0:
+        sost = 'Выключены'
+    if x == 1:
+        sost = 'Включены'
     await bot.send_message(message.from_user.id, 
-        'Добро пожаловать в главное меню, здесь вы можете настроить автоматическое получение получение расписания или получить его вручную', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить автоматическое получение получение расписания (Уведомление о парах на следующий день) или получить его вручную\nСостояние уведомлений: {sost}', 
         reply_markup=keyboard.button_main,
         )
 
@@ -290,14 +286,11 @@ async def user_help (message: types.Message):
 
 
 #scheduler
-async def scheduler(message: types.Message):
+async def scheduler(message: types.Message, time):
     global x
     try:
-        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-        result = cur.fetchall()
-        print([list(result[0])[2]][0])
-#        aioschedule.every().day.at([list(result[0])[2]][0]).do(schedule_next_day, message)
-        aioschedule.every(3).seconds.do(schedule_next_day, message)
+        aioschedule.every().day.at(time).do(schedule_next_day, message)
+#        aioschedule.every(3).seconds.do(schedule_next_day, message)
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
