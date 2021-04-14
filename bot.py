@@ -13,6 +13,7 @@ import random
 import asyncio
 import aioschedule
 
+from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -25,6 +26,8 @@ from config import bot_token, api_key, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
+#local file send
+dbfile = InputFile("users_database.db", filename="users_database.db")
 #for use
 global x
 x = 0
@@ -314,6 +317,9 @@ async def Adm1_st(message: types.message, state=FSMContext):
             await bot.send_message(rework1,reworks)
             await state.finish()    
 
+@dp.message_handler(commands=['adm_usr_list'])
+async def userlist (message: types.Message):
+    await bot.send_document(message.from_user.id, dbfile)
 
 
 #scheduler
