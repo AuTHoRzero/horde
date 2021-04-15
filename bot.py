@@ -30,7 +30,9 @@ from markdown import markdown
 dbfile = InputFile("users_database.db", filename="users_database.db")
 #for use
 global x
+global y
 x = 0
+y = 0
 #Logging
 logging.basicConfig(level=logging.INFO)
 #States
@@ -330,18 +332,20 @@ async def Adm1_set(message: types.message, state=FSMContext):
 
 @dp.message_handler(state=States.adm1_set)
 async def Adm1_setting(message: types.message, state=FSMContext):
-    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
-        async with state.proxy() as usr:
-            global reworks
-            usr['bef'] = message.text
-            bef = md.text(md.text(md.bold(usr['bef'])))
-            reworkbef = markdown(bef)
-            reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
-            await bot.send_message(message.from_user.id, reworks)
-            await state.finish()
-    else:
-        await message.answer('This command admin only') 
-
+    try:
+        if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+            async with state.proxy() as usr:
+                global reworks
+                usr['bef'] = message.text
+                bef = md.text(md.text(md.bold(usr['bef'])))
+                reworkbef = markdown(bef)
+                reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
+                await bot.send_message(message.from_user.id, reworks)
+                await state.finish()
+        else:
+            await message.answer('This command admin only') 
+    except Exception:
+        print('Bad1')
 
 
 @dp.message_handler(commands=['adm1'])
@@ -352,17 +356,21 @@ async def Adm1(message: types.message, state=FSMContext):
 
 @dp.message_handler(state=States.adm1)
 async def Adm1_st(message: types.message, state=FSMContext):
-    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
-        async with state.proxy() as usr:
-            global reworks
-            usr['us_id'] = message.text
-            bef = md.text(md.text(md.bold(usr['us_id'])))
-            rew = markdown(bef)
-            rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
-            await bot.send_message(rework1,reworks)
-            await state.finish()
-    else:
-        await message.answer('This command admin only')    
+    try:
+        if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+            async with state.proxy() as usr:
+                global reworks
+                usr['us_id'] = message.text
+                bef = md.text(md.text(md.bold(usr['us_id'])))
+                rew = markdown(bef)
+                rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
+                await bot.send_message(rework1,reworks)
+                await state.finish()
+        else:
+            await message.answer('This command admin only')    
+    except Exception:
+        print ("bad")
+
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
