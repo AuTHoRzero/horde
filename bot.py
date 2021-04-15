@@ -26,8 +26,6 @@ from config import bot_token, api_key, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
-#local file send
-dbfile = InputFile("users_database.db", filename="users_database.db")
 #for use
 global x
 global y
@@ -59,6 +57,8 @@ if next_day == 7:
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
+#local file send
+dbfile = InputFile("users_database.db", filename="users_database.db")
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
