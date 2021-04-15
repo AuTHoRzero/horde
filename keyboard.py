@@ -5,6 +5,7 @@ from aiogram.types import ReplyKeyboardRemove, \
 #Button need
 reset_button = KeyboardButton('Сменить группу')
 back_btn = KeyboardButton('Назад')
+back_settng = KeyboardButton('Назад в настройки')
 btn_back = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(back_btn)
 #Group 1    
 student_button = KeyboardButton('Я студент')
@@ -25,7 +26,7 @@ button_go_main = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=Tru
 #Group 5
 today_button = KeyboardButton('Расписание на сегодня')
 next_day_button = KeyboardButton('Расписание на завтра')
-button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True).row(today_button, next_day_button).add(back_btn)
+button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True).row(today_button, next_day_button).add(back_settng)
 #Group 6
 day_notify = KeyboardButton('Пары на сегодня/завтра')
 time_set_button = KeyboardButton('Время уведомлений')
@@ -34,4 +35,4 @@ button_notify = ReplyKeyboardMarkup(resize_keyboard=True).row(time_set_button, n
 #Group 7
 today = KeyboardButton('На сегодня')
 next_day = KeyboardButton('На завтра')
-btn_change_day = ReplyKeyboardMarkup(resize_keyboard=True).row(today, next_day).add(back_btn)
+btn_change_day = ReplyKeyboardMarkup(resize_keyboard=True).row(today, next_day).add(back_settng)
