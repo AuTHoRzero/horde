@@ -115,7 +115,7 @@ async def teacher_register(message: types.Message):
         'Данная функция находится в разработке, пожалуйста попробуйте позднее',
         )
 
-@dp.message_handler(text=['Настройки'])
+@dp.message_handler(text=['Настройки', 'Назад в настройки'])
 async def setting(message: types.Message):
     await message.answer('Добро пожаловать в меню настроек', 
     reply_markup=keyboard.button_notify,
