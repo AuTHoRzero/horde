@@ -1,16 +1,18 @@
 import requests
 from requests_ntlm2 import HttpNtlmAuth
 from AdvancedHTMLParser import AdvancedHTMLParser
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-USERNAME = '10190128'
-PASSWORD = 'nhPpYu90Ag'
 
     
-def auth(s, username, password):
-    auth = HttpNtlmAuth(username, password)
+def auth(s):
+    auth = HttpNtlmAuth('college\\10190128','nhPpYu90Ag')
     s.auth = auth
-    result = s.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+    url = 'https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx'
+    result = s.get(url, auth=auth)
     
 
 def get_form_digest(s):
@@ -79,9 +81,9 @@ def get_groups(s):
 def main():
     s = requests.session()
     s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'}
-    s.proxies = {'https': 'http://127.0.0.1:8888'}
+#    s.proxies = {'https': 'http://127.0.0.1:8888'}
     s.verify = False
-    auth(s, USERNAME, PASSWORD)
+    auth(s)
     group = get_groups(s)
     
  
