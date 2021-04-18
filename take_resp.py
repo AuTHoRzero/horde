@@ -29,12 +29,12 @@ try:
     driver.get('https://accounts.firefox.com/?context=fx_desktop_v3&entrypoint=fxa_discoverability_native&action=email&service=sync')
     time.sleep(1)
     em_inp = driver.find_element_by_name("email")
-    em_inp.send_keys('')
+    em_inp.send_keys('berozko.roman@yandex.ru')
     time.sleep(.5)
     cont_btn = driver.find_element_by_id('submit-btn').click()
     time.sleep(1)
     pas = driver.find_element_by_id("password")
-    pas.send_keys("")
+    pas.send_keys("78697869r")
     time.sleep(.4)
     ent_btn = driver.find_element_by_id("submit-btn").click()
     time.sleep(18)
@@ -68,7 +68,6 @@ try:
     driver.get(href)
 except Exception:
     print ('4')
-try:
+
     table = driver.find_element_by_id('SPFieldNote')
-except Exception:
-    print ('5')
+time.sleep(4)
