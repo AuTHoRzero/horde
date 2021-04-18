@@ -10,6 +10,7 @@ from selenium.webdriver import ActionChains
 from requests_ntlm2 import HttpNtlmAuth
 import time
 
+f = open('/home/author/horde/24.txt',"w")
 #Для замен
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"]
 today_day = datetime.datetime.today().weekday()
@@ -66,8 +67,11 @@ try:
     href = zamen.get_attribute('href')
     time.sleep(4)
     driver.get(href)
+    time.sleep(5)
+    html = driver.page_source
+    time.sleep(2)
+    print(html)
 except Exception:
     print ('4')
 
-    table = driver.find_element_by_id('SPFieldNote')
-time.sleep(4)
+f.write(html)
