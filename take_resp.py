@@ -9,8 +9,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 from requests_ntlm2 import HttpNtlmAuth
 import time
+import os 
 
-f = open('/home/author/horde/24.txt',"w")
+f = open('/home/author/horde/zam_today.txt',"w")
 #Для замен
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"]
 today_day = datetime.datetime.today().weekday()
@@ -60,7 +61,7 @@ try:
 #    time.sleep(1)
 #    pre_kab.select_by_visible_text('По группе')
 except Exception:
-    print ('3')
+    print ('step 3')
 
 try:
     zamen = driver.find_element_by_link_text(a)
@@ -71,7 +72,10 @@ try:
     html = driver.page_source
     time.sleep(2)
     print(html)
+    f.write(html)
+    time.sleep(2)
 except Exception:
-    print ('4')
+    print ('step 4')
 
-f.write(html)
+driver.close()
+os.rename('zam_today.txt', 'zam_today.html') 
