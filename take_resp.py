@@ -65,6 +65,10 @@ except Exception:
 try:
     driver.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     time.sleep(3)
+    inf = open(f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+    inf_page = driver.page_source
+    inf.write(inf_page)
+    time.sleep(1)
 except Exception:
     print ('step 3')
 
