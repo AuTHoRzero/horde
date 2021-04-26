@@ -19,7 +19,7 @@ today_day = datetime.datetime.today().weekday()
 next_day = today_day + 1
 if next_day == 7:
     next_day = 1
-#print(next_day)
+print(next_day)
 today = datetime.date.today()
 tomorrow = today + datetime.timedelta(days=1)
 day_before = today - datetime.timedelta(days=1)

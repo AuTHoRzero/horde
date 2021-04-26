@@ -13,6 +13,8 @@ import random
 import asyncio
 import aioschedule
 import pandas as pd
+import schedule
+import  subprocess
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -28,14 +30,30 @@ from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
 from pprint import pprint
+#bs4
+with open ('info_26.04.2021.html') as file:
+    src1 = file.read()
+
+soup1 = BeautifulSoup(src1, "lxml")
+
+all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n',all_p3.get_text(),'\n',all_p4.get_text())
 #for use
+global key
 global cikl
 global x
 global y
 global chisl
+
+chisl = ''
 x = 0
 y = 0
 cikl = 0
+key = 0
 #Logging
 logging.basicConfig(level=logging.INFO)
 #States
@@ -51,11 +69,6 @@ bot = Bot(token=bot_token)
 dp = Dispatcher(bot, storage=MemoryStorage())
 #Weekday and date
 today_week = datetime.datetime.today().isocalendar()[1]
-if (today_week % 2 == 0):
-    chisl = 'Числитель'
-else:
-    chisl = 'Знаменатель'
-print (chisl)
 today_day = datetime.datetime.today().weekday()
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
 days_naming_en = ["monday", "tuesday", "wednesday", "thursday", "friday","saturday", "sunday"]
@@ -70,6 +83,61 @@ cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
 #local file send
 dbfile = InputFile("users_database.db", filename="users_database.db")
+#Day
+async def week():
+    global key
+    global cikl
+    global cikl1
+    global key1
+    if (today_week % 2 == 0):
+        chisl = 'Числитель'
+    else:
+        chisl = 'Знаменатель'
+    print (chisl)
+    if (chisl == 'Знаменатель' and today_day==0):
+        cikl = 0
+        cikl1 = 6
+    elif (chisl == 'Знаменатель' and today_day==1):
+        cikl = 6
+        cikl1 = 12
+    elif (chisl == 'Знаменатель' and today_day==2):  
+        cikl = 12  
+        cikl1 = 18
+    elif (chisl == 'Знаменатель' and today_day==3):
+        cikl = 18
+        cikl1 = 24
+    elif (chisl == 'Знаменатель' and today_day==4):
+        cikl = 24
+        cikl1 = 30
+    elif (chisl == 'Знаменатель' and today_day==5):
+        cikl = 30
+        cikl1 = 100
+    elif (chisl == 'Знаменатель' and today_day==6):   
+        cikl = 100
+        cikl1 = 36
+    elif (chisl == 'Числитель' and today_day == 0):
+        cikl = 36
+        cikl1 =42
+    elif (chisl == 'Числитель' and today_day==1):
+        cikl = 42
+        cikl1 = 48
+    elif (chisl == 'Числитель' and today_day==2):  
+        cikl = 48
+        cikl1 = 54  
+    elif (chisl == 'Числитель' and today_day==3):
+        cikl = 54
+        cikl1 = 60
+    elif (chisl == 'Числитель' and today_day==4):
+        cikl = 60
+        cikl1 = 66
+    elif (chisl == 'Числитель' and today_day==5):
+        cikl = 66
+        cikl1 = 100
+    elif (chisl == 'Числитель' and today_day==6):   
+        cikl = 100  
+        cikl1 = 0
+    key = cikl + 6
+    key1 = cikl1 + 6
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
@@ -215,65 +283,64 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=['Расписание на сегодня'])
 async def schedule_today(message: types.Message):
-    try:
-        await message.answer(f'Сегодня: {days_naming[today_day]}')
-        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-        res = cur.fetchall()
-        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-        all_schedule = json.loads(response.text)
+    global cikl
+    global key
+    if(cikl==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
         try:
-            schedule = all_schedule["schedule"][days_naming_en[today_day]]
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            text = ''
+            while cikl < key:
+                if (s1[cikl] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            cikl = key - 6
         except Exception:
-            await message.answer('Нет данных о парах на сегодня, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-        else:
-            reply_message = ""
-            for i in range(len(schedule)+1):
-                try:
-                    lesson_json = schedule[str(i+1)][0]
-                    lesson = lesson_json['lesson']
-                    teacher = lesson_json['teacher']
-                    classroom = lesson_json['classroom']
-                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                    reply_message = f'{reply_message}\n{period}'
-                except Exception:
-                    pass
-            await bot.send_message(message.from_user.id, reply_message)
-    except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+            print ('error in take schedule for today')
 
 
 
 @dp.message_handler(text=['Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
-    try:
-        await message.answer(f'Завтра: {days_naming[next_day]}')
-        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-        res = cur.fetchall()
-        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-        all_schedule = json.loads(response.text)
+    global cikl1
+    global key1
+    if(cikl1==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
         try:
-            schedule = all_schedule["schedule"][days_naming_en[next_day]]
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            text = ''
+            while cikl1 < key1:
+                if (s1[cikl1] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
+                    cikl1 = cikl1 + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            cikl1 = key1 - 6
         except Exception:
-            await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-        else:
-            reply_message = ""
-            for i in range(len(schedule)+1):
-                try:
-                    lesson_json = schedule[str(i+1)][0]
-                    lesson = lesson_json['lesson']
-                    teacher = lesson_json['teacher']
-                    classroom = lesson_json['classroom']
-                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                    reply_message = f'{reply_message}\n{period}'
-                except Exception:
-                    pass
-            await bot.send_message(message.from_user.id, reply_message)
+            print ('error in take schedule for next_day')
 
-    except Exception:
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
 
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
@@ -287,6 +354,7 @@ async def main_menu (message: types.Message):
         f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}', 
         reply_markup=keyboard.button_main,
         )
+    await bot.send_message(message.from_user.id, f'{all_p.get_text()}\n {all_p1.get_text()}\n{all_p2.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}')
 
 
 @dp.message_handler(text=['Мой профиль'])
@@ -383,19 +451,43 @@ async def Adm1_st(message: types.message, state=FSMContext):
         print ("bad")
 
 
+@dp.message_handler(commands=['start_f'])
+async def start_f (message: types.Message):
+    aioschedule.every(5).seconds.do(week)
+    aioschedule.every().day.at('23:00').do(search)
+    while True:
+        await aioschedule.run_pending()
+        await asyncio.sleep(1)
+        
+
 @dp.message_handler(commands=['test_com'])
 async def testing(message: types.Message):
-    conn = sqlite3.connect('users_database.db')
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-    result = cur.fetchall()
-    stud = pd.read_excel('stud_26.04.2021.xlsx')
-    s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-    s2 = (stud[f'{[list(result[0])[1]][0]}'])
-    text = ''
-    for cikl in range(6):
-        text = f'{text}\n\n{cikl + 1} пара:\n  {s1[cikl]}'
-    await message.answer(text)
+    global cikl
+    global key
+    if(cikl==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
+        try:
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            text = ''
+            while cikl < key:
+                if (s1[cikl] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            cikl = key - 6
+        except Exception:
+            print ('error in take schedule for today')
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
@@ -423,6 +515,9 @@ async def scheduler_td(message: types.Message, time):
             await asyncio.sleep(1)
     except Exception:
         print ('Trouble with schedule')
+
+async def search():
+    subprocess.Popen(['python3', 'take_resp.py'])
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)

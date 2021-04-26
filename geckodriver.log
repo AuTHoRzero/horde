@@ -398,3 +398,63 @@ JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=
 Exiting due to channel error.
 Exiting due to channel error.
 Exiting due to channel error.
+1619459699094	geckodriver	INFO	Listening on 127.0.0.1:32947
+1619459700074	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileqBRGQw"
+1619459705874	Marionette	INFO	Listening on port 43003
+1619459705903	Marionette	WARN	TLS certificate errors will be ignored for this session
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+1619459744956	geckodriver	INFO	Listening on 127.0.0.1:34345
+1619459744962	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilelX9zZL"
+1619459749372	Marionette	INFO	Listening on port 34443
+1619459749475	Marionette	WARN	TLS certificate errors will be ignored for this session
+1619459761548	FirefoxAccounts	ERROR	FxA rejecting with error UNVERIFIED_ACCOUNT, details: undefined
+console.info: "Skipping device list refresh; not signed in"
+1619459761553	FirefoxAccounts	ERROR	Background refresh of initial profile failed: Error: UNVERIFIED_ACCOUNT(resource://gre/modules/FxAccounts.jsm:1856:18) JS Stack trace: _error@FxAccounts.jsm:1856:18
+withVerifiedAccountState/<@FxAccounts.jsm:853:20
+1619459761555	FirefoxAccounts	ERROR	FxA rejecting with error UNVERIFIED_ACCOUNT, details: undefined
+1619459761555	FirefoxAccounts	ERROR	Background refresh of initial profile failed: Error: UNVERIFIED_ACCOUNT(resource://gre/modules/FxAccounts.jsm:1856:18) JS Stack trace: _error@FxAccounts.jsm:1856:18
+withVerifiedAccountState/<@FxAccounts.jsm:853:20
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619459829823	Marionette	INFO	Stopped listening on port 34443
+1619459834351	geckodriver	INFO	Listening on 127.0.0.1:45051
+1619459834356	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileUdUkhN"
+1619459838753	Marionette	INFO	Listening on port 43391
+1619459838771	Marionette	WARN	TLS certificate errors will be ignored for this session
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+1619465341810	geckodriver	INFO	Listening on 127.0.0.1:41339
+1619465341814	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileTWkaFP"
+1619465346334	Marionette	INFO	Listening on port 34373
+1619465346427	Marionette	WARN	TLS certificate errors will be ignored for this session
+1619465352055	Marionette	INFO	Stopped listening on port 34373
+1619466923061	geckodriver	INFO	Listening on 127.0.0.1:59115
+1619466923065	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileKKXeiM"
+1619466927761	Marionette	INFO	Listening on port 41201
+1619466927775	Marionette	WARN	TLS certificate errors will be ignored for this session
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+1619467201046	geckodriver	INFO	Listening on 127.0.0.1:34807
+1619467201050	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilexbzUa1"
+1619467205671	Marionette	INFO	Listening on port 40473
+1619467205762	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+###!!! [Child][MessageChannel] Error: (msgtype=0x5B000D,name=PHttpChannel::Msg_DeletingChannel) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel] Error: (msgtype=0x5B000D,name=PHttpChannel::Msg_DeletingChannel) Channel closing: too late to send/recv, messages will be lost
+
+
+###!!! [Child][MessageChannel] Error: (msgtype=0x5B000D,name=PHttpChannel::Msg_DeletingChannel) Channel closing: too late to send/recv, messages will be lost
+
+console.error: services.settings: 
+  main/fxmonitor-breaches Signature failed  TypeError: NetworkError when attempting to fetch resource.
+console.error: services.settings: 
+  main/cfr-fxa Signature failed  TypeError: NetworkError when attempting to fetch resource.
+1619467208905	Marionette	INFO	Stopped listening on port 40473
