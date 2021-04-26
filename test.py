@@ -12,6 +12,7 @@ import time
 import random
 import asyncio
 import aioschedule
+import pandas as pd
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -26,11 +27,15 @@ from config import bot_token, api_key, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
-#local file send
-dbfile = InputFile("users_database.db", filename="users_database.db")
+from pprint import pprint
 #for use
+global cikl
 global x
+global y
+global chisl
 x = 0
+y = 0
+cikl = 0
 #Logging
 logging.basicConfig(level=logging.INFO)
 #States
@@ -45,6 +50,12 @@ bot = Bot(token=bot_token)
 #Bot dispetcher
 dp = Dispatcher(bot, storage=MemoryStorage())
 #Weekday and date
+today_week = datetime.datetime.today().isocalendar()[1]
+if (today_week % 2 == 0):
+    chisl = 'Числитель'
+else:
+    chisl = 'Знаменатель'
+print (chisl)
 today_day = datetime.datetime.today().weekday()
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
 days_naming_en = ["monday", "tuesday", "wednesday", "thursday", "friday","saturday", "sunday"]
@@ -57,6 +68,8 @@ if next_day == 7:
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
+#local file send
+dbfile = InputFile("users_database.db", filename="users_database.db")
 #Function
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
@@ -113,7 +126,7 @@ async def teacher_register(message: types.Message):
         'Данная функция находится в разработке, пожалуйста попробуйте позднее',
         )
 
-@dp.message_handler(text=['Настройки'])
+@dp.message_handler(text=['Настройки', 'Назад в настройки'])
 async def setting(message: types.Message):
     await message.answer('Добро пожаловать в меню настроек', 
     reply_markup=keyboard.button_notify,
@@ -330,18 +343,20 @@ async def Adm1_set(message: types.message, state=FSMContext):
 
 @dp.message_handler(state=States.adm1_set)
 async def Adm1_setting(message: types.message, state=FSMContext):
-    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
-        async with state.proxy() as usr:
-            global reworks
-            usr['bef'] = message.text
-            bef = md.text(md.text(md.bold(usr['bef'])))
-            reworkbef = markdown(bef)
-            reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
-            await bot.send_message(message.from_user.id, reworks)
-            await state.finish()
-    else:
-        await message.answer('This command admin only') 
-
+    try:
+        if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+            async with state.proxy() as usr:
+                global reworks
+                usr['bef'] = message.text
+                bef = md.text(md.text(md.bold(usr['bef'])))
+                reworkbef = markdown(bef)
+                reworks = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
+                await bot.send_message(message.from_user.id, reworks)
+                await state.finish()
+        else:
+            await message.answer('This command admin only') 
+    except Exception:
+        print('Bad1')
 
 
 @dp.message_handler(commands=['adm1'])
@@ -352,17 +367,35 @@ async def Adm1(message: types.message, state=FSMContext):
 
 @dp.message_handler(state=States.adm1)
 async def Adm1_st(message: types.message, state=FSMContext):
-    if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
-        async with state.proxy() as usr:
-            global reworks
-            usr['us_id'] = message.text
-            bef = md.text(md.text(md.bold(usr['us_id'])))
-            rew = markdown(bef)
-            rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
-            await bot.send_message(rework1,reworks)
-            await state.finish()
-    else:
-        await message.answer('This command admin only')    
+    try:
+        if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
+            async with state.proxy() as usr:
+                global reworks
+                usr['us_id'] = message.text
+                bef = md.text(md.text(md.bold(usr['us_id'])))
+                rew = markdown(bef)
+                rework1 = ''.join(BeautifulSoup(rew).findAll(text=True))
+                await bot.send_message(rework1,reworks)
+                await state.finish()
+        else:
+            await message.answer('This command admin only')    
+    except Exception:
+        print ("bad")
+
+
+@dp.message_handler(commands=['test_com'])
+async def testing(message: types.Message):
+    conn = sqlite3.connect('users_database.db')
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+    result = cur.fetchall()
+    stud = pd.read_excel('stud_26.04.2021.xlsx')
+    s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+    s2 = (stud[f'{[list(result[0])[1]][0]}'])
+    text = ''
+    for cikl in range(6):
+        text = f'{text}\n\n{cikl + 1} пара:\n  {s1[cikl]}'
+    await message.answer(text)
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
