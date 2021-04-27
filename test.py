@@ -81,6 +81,7 @@ if next_day == 7:
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
+cur.execute('CREATE TABLE IF NOT EXISTS prepods(user_id INTEGER, prep_name TEXT, notify_times TEXT)')
 #local file send
 dbfile = InputFile("users_database.db", filename="users_database.db")
 #Day
