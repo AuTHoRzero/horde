@@ -30,18 +30,6 @@ from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
 from pprint import pprint
-#bs4
-with open ('info_26.04.2021.html') as file:
-    src1 = file.read()
-
-soup1 = BeautifulSoup(src1, "lxml")
-
-all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n',all_p3.get_text(),'\n',all_p4.get_text())
 #for use
 global key
 global cikl
@@ -63,6 +51,7 @@ class States(StatesGroup):
     adm1 = State()
     adm1_set = State()
     sndmsg = State()
+    fio = State()
 #Bot object
 bot = Bot(token=bot_token)
 #Bot dispetcher
@@ -77,6 +66,18 @@ calendar.day_name[today.weekday()]
 next_day = today_day + 1
 if next_day == 7:
     next_day = 0
+#bs4
+with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
+    src1 = file.read()
+
+soup1 = BeautifulSoup(src1, "lxml")
+
+all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n',all_p3.get_text(),'\n',all_p4.get_text())
 #users database
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
@@ -190,10 +191,31 @@ async def group_number(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text=['Я преподаватель'])
 async def teacher_register(message: types.Message):
-    await bot.send_message(
-        message.from_user.id,
-        'Данная функция находится в разработке, пожалуйста попробуйте позднее',
+    cur.execute(f'INSERT OR REPLACE INTO prepods VALUES("{message.from_user.id}","0","0")')
+    conn.commit()
+    await States.fio.set()
+    await bot.send_message(message.from_user.id, 'Укажите свои ФИО как в расписании\nПример: Фамилия И.О.')
+
+
+@dp.message_handler(state=States.fio)
+async def fio(message: types.Message, state: FSMContext):
+    async with state.proxy() as names:
+        global fiot
+        names['fiot'] = message.text
+        await bot.send_message(message.chat.id, 
+        md.text(md.text('Ваше ФИО:', 
+        md.bold(names['fiot']))), 
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup= keyboard.button_go_main
         )
+        grouper = md.text(md.text(md.bold(names['fiot'])))
+        names = markdown(grouper)
+        fiot = ''.join(BeautifulSoup(names).findAll(text=True))
+        print(fiot)
+        cur.execute(f'UPDATE prepods SET prep_name = "{fiot}" WHERE user_id = "{message.from_user.id}"')
+        conn.commit()
+        await state.finish()
+
 
 @dp.message_handler(text=['Настройки', 'Назад в настройки'])
 async def setting(message: types.Message):
@@ -206,7 +228,12 @@ async def setting(message: types.Message):
 async def rewrite (message: types.Message):
     await States.group.set()
     await message.answer('Введите новый номер группы:')
-    
+
+
+@dp.message_handler(text=['Сменить ФИО'])
+async def rewrite_fio (message: types.Message):
+    await States.fio.set()
+    await message.answer('Введите новое ФИО\nПример: Фамилия И.О.')
 
 
 @dp.message_handler(text=['Время уведомлений'])
@@ -234,6 +261,7 @@ async def time_set (message: types.Message):
     elif x == 1 and y == 0:
         await message.answer('Уведомления на пары текущего дня включены')
         await scheduler_td(message, time)
+    
 
 
 @dp.message_handler(state=States.setting)
@@ -246,12 +274,13 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         md.text(md.text('Установленное время:', 
         md.bold(times['times_set']))), 
         parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup= keyboard.button_go_main
+        reply_markup= keyboard.button_notify
         )
         timers = md.text(md.text(md.bold(times['times_set'])))
         rework = markdown(timers)
         setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
         cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
+        cur.execute(f'UPDATE prepods SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
         await state.finish()
 
@@ -298,6 +327,7 @@ async def schedule_today(message: types.Message):
             stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
             s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
             s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            group_num = [list(result[0])[1]][0]
             text = ''
             while cikl < key:
                 if (s1[cikl] == 'nan'):
@@ -307,9 +337,44 @@ async def schedule_today(message: types.Message):
                     cikl = cikl + 1
                     para_num = para_num + 1
             await message.answer(text)
-            cikl = key - 6
+            conn = sqlite3.connect('zamen.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM raspis WHERE groups = "{group_num}"')
+            res1 = cur.fetchall()
+            b1 = " "
+            schet = 0
+            for row in res1:
+                schet = schet + 1
+                a1 = f"Группа: {row[0]}"
+                a2 = f'Номер пары: {row[1]}'
+                a3 = f'Пара по расписанию: {row[2]}'
+                a4 = f'Пара по замене: {row[3]}'
+                b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n'
+            await message.answer(b1)
+
+
         except Exception:
-            print ('error in take schedule for today')
+            try:
+                para_num = 1
+                conn = sqlite3.connect('users_database.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+                result = cur.fetchall()
+                stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+                s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+                s2 = (stud[f'{[list(result[0])[1]][0]}'])
+                text = ''
+                while cikl < key:
+                    if (s1[cikl] == 'nan'):
+                        print('1')
+                    else:
+                        text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                        cikl = cikl + 1
+                        para_num = para_num + 1
+                await message.answer(text)
+
+            except Exception:
+                await message.answer('Возникла проблема, попробуйте пройти регистрацию снова, если это не помогает обратитесь к администратору используя команду /msgtadm')
 
 
 
@@ -338,10 +403,27 @@ async def schedule_next_day(message: types.Message):
                     cikl1 = cikl1 + 1
                     para_num = para_num + 1
             await message.answer(text)
-            cikl1 = key1 - 6
         except Exception:
-            print ('error in take schedule for next_day')
-
+            try:
+                para_num = 1
+                conn = sqlite3.connect('users_database.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+                result = cur.fetchall()
+                stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+                s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+                s2 = (stud[f'{[list(result[0])[1]][0]}'])
+                text = ''
+                while cikl1 < key1:
+                    if (s1[cikl1] == 'nan'):
+                        print('1')
+                    else:
+                        text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
+                        cikl1 = cikl1 + 1
+                        para_num = para_num + 1
+                await message.answer(text)
+            except Exception:
+                await message.answer('Возникла проблема, попробуйте пройти регистрацию снова, если это не помогает обратитесь к администратору используя команду /msgtadm')
 
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
@@ -352,7 +434,7 @@ async def main_menu (message: types.Message):
     if x == 1:
         sost = 'Включены'
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
         reply_markup=keyboard.button_main,
         )
     await bot.send_message(message.from_user.id, f'{all_p.get_text()}\n {all_p1.get_text()}\n{all_p2.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}')
@@ -360,12 +442,17 @@ async def main_menu (message: types.Message):
 
 @dp.message_handler(text=['Мой профиль'])
 async def get_profile(message: types.Message):
+    await message.answer('Какой профиль вам нужен?', reply_markup=keyboard.button_stpr)
+
+
+@dp.message_handler(text=['Студент'])
+async def student (message: types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         result = cur.fetchall()
-        await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+        await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
     except Exception:
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
         conn = sqlite3.connect('users_database.db')
@@ -374,6 +461,20 @@ async def get_profile(message: types.Message):
         conn.commit()
 
 
+@dp.message_handler(text=['Преподаватель'])
+async def profile1 (message:types.Message):
+    try:
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+        result1 = cur.fetchall()
+        await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}', reply_markup=keyboard.btn_back)
+    except Exception:
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
+        conn.commit()
 
 @dp.message_handler(text="Помощь")
 async def user_help (message: types.Message):
@@ -519,6 +620,24 @@ async def scheduler_td(message: types.Message, time):
 
 async def search():
     subprocess.Popen(['python3', 'take_resp.py'])
+
+@dp.message_handler(commands=['test'])
+async def test(message:types.Message):
+    conn = sqlite3.connect('zamen.db')
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM raspis WHERE groups = " 3806"')
+    res1 = cur.fetchall()
+    b1 = " "
+    schet = 0
+    print (res1)
+#    for row in res1:
+#        schet = schet + 1
+#        a1 = f"Группа: {row[0]}"
+#        a2 = f'Номер пары: {row[1]}'
+#        a3 = f'Пара по расписанию: {row[2]}'
+#        a4 = f'Пара по замене: {row[3]}'
+#        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n'
+#    await message.answer(b1)
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
