@@ -14,12 +14,11 @@ import os
 
 ###
 #Для замен
-days_naming = ["","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"]
+days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота", " "]
 today_day = datetime.datetime.today().weekday()
 next_day = today_day + 1
 if next_day == 7:
-    next_day = 1
-#print(next_day)
+    next_day = 0
 today = datetime.date.today()
 tomorrow = today + datetime.timedelta(days=1)
 day_before = today - datetime.timedelta(days=1)
@@ -27,9 +26,8 @@ a = f'Замена на {tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tom
 b = f'Замена на {today.strftime("%d")}.{today.strftime("%m")}.{today.year}г., {days_naming[today_day]}'
 
 #Создание файлов
-f1 = open(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.txt', "w")
-f = open(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.txt',"w")
-
+f1 = open(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f = open(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
 #Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)
 option = webdriver.FirefoxOptions()
 option.add_argument("user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
@@ -145,11 +143,21 @@ except Exception:
 
 #Выключение браузера
 driver.close()
-#Смена имени файла
-os.rename(f'{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.txt', f'{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') 
-os.rename(f'{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.txt', f'{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
+
  #Удаление файла со вчерашним расписанием
 try:
      os.remove(f'{day_before.strftime("%d")}.{day_before.strftime("%m")}.{day_before.year}.html')
 except Exception:
-    print('No day before file')
+    print('No zamen past')
+try:
+     os.remove(f'stud_{day_before.strftime("%d")}.{day_before.strftime("%m")}.{day_before.year}.xlsx')
+except Exception:
+    print('No stud past')
+try:
+     os.remove(f'prep_{day_before.strftime("%d")}.{day_before.strftime("%m")}.{day_before.year}.xlsx')
+except Exception:
+    print('No prep past')
+try:
+     os.remove(f'info_{day_before.strftime("%d")}.{day_before.strftime("%m")}.{day_before.year}.html')
+except Exception:
+    print('No info past')

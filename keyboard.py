@@ -3,6 +3,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
 #Button need
+reset1_button = KeyboardButton('Сменить ФИО')
 reset_button = KeyboardButton('Сменить группу')
 back_btn = KeyboardButton('Назад')
 back_settng = KeyboardButton('Назад в настройки')
@@ -26,13 +27,17 @@ button_go_main = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=Tru
 #Group 5
 today_button = KeyboardButton('Расписание на сегодня')
 next_day_button = KeyboardButton('Расписание на завтра')
-button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True).row(today_button, next_day_button).add(back_settng)
+button_schedule_choise = ReplyKeyboardMarkup(resize_keyboard=True).row(today_button, next_day_button).add(back_btn)
 #Group 6
 day_notify = KeyboardButton('Пары на сегодня/завтра')
 time_set_button = KeyboardButton('Время уведомлений')
 notify_switch_button = KeyboardButton('Вкл/Выкл уведомлений')
-button_notify = ReplyKeyboardMarkup(resize_keyboard=True).row(time_set_button, notify_switch_button).add(day_notify).add(reset_button).add(back_btn)
+button_notify = ReplyKeyboardMarkup(resize_keyboard=True).row(time_set_button, notify_switch_button).row(reset_button, reset1_button).add(day_notify).add(back_btn)
 #Group 7
 today = KeyboardButton('На сегодня')
 next_day = KeyboardButton('На завтра')
 btn_change_day = ReplyKeyboardMarkup(resize_keyboard=True).row(today, next_day).add(back_settng)
+#Group 8
+student = KeyboardButton('Студент')
+prepod = KeyboardButton('Преподаватель')
+button_stpr = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).row(student, prepod).add(back_btn)
