@@ -1,3 +1,6 @@
+##############
+##Библиотеки##
+##############
 import datetime
 from requests_ntlm2 import HttpNtlmAuth
 from selenium import webdriver
@@ -10,10 +13,10 @@ from selenium.webdriver import ActionChains
 import time
 import requests
 import os 
-###
 
-###
-#Для замен
+#################################
+##Время и переменные для поиска##
+#################################
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота", " "]
 today_day = datetime.datetime.today().weekday()
 next_day = today_day + 1
@@ -25,10 +28,18 @@ day_before = today - datetime.timedelta(days=1)
 a = f'Замена на {tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}г., {days_naming[next_day]}'
 b = f'Замена на {today.strftime("%d")}.{today.strftime("%m")}.{today.year}г., {days_naming[today_day]}'
 
-#Создание файлов
-f1 = open(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
-f = open(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
-#Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)
+###################
+##Создание файлов##
+###################
+inf = open(f'/home/user/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f = open(f'/home/user/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
+f1 = open(f'/home/user/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f2 = open(f'/home/user/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+f3 = open(f'/home/user/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+
+#######################################################################
+##Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)##
+#######################################################################
 option = webdriver.FirefoxOptions()
 option.add_argument("user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
 driver = webdriver.Firefox(options=option)
@@ -49,7 +60,9 @@ try:
 except Exception:
     print('bad login')
 
-#Авторизация на сайте петровского
+####################################
+##Авторизация на сайте петровского##
+####################################
 try:
     driver.get("https://portal.petrocollege.ru")
     WebDriverWait(driver,10).until(EC.alert_is_present(),"wait for alert pop out")
@@ -63,7 +76,6 @@ except Exception:
 try:
     driver.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     time.sleep(3)
-    inf = open(f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
     inf_page = driver.page_source
     inf.write(inf_page)
     time.sleep(1)
@@ -97,7 +109,9 @@ try:
 except Exception:
     print('step 5')
 
-#excel студенты
+##################
+##excel студенты##
+##################
 try:
     driver.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     time.sleep(2)
@@ -109,7 +123,6 @@ try:
     urltoexcel.click
     href3 = urltoexcel.get_attribute('href')
 #    driver.get(href3)
-    f2 = open(f'/home/author/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
     auth = HttpNtlmAuth('10190128', 'nhPpYu90Ag')
     file_xlsx = requests.get(href3, auth=auth)
     time.sleep(10)
@@ -119,7 +132,9 @@ try:
 except Exception:
     print ('step 6')
 
-#excel преподы
+#################
+##excel преподы##
+#################
 try:
     driver.get('https://portal.petrocollege.ru/Lists/2014')
     time.sleep(2)
@@ -127,24 +142,25 @@ try:
     prep_link = driver.find_element_by_link_text('Шахматка преподавателей (полная)')
     href4 = prep_link.get_attribute('href')
     time.sleep(1)
-#    print (href4)
     driver.get(href4)
     time.sleep(2)
     prepod_shach = driver.find_element_by_id('{8190960c-46d9-4595-bf7a-5069ca1864ba}').find_element_by_tag_name('a')
     href5 = prepod_shach.get_attribute('href')
     file_xlsx1 = requests.get(href5, auth=auth)
     time.sleep(5)
-    f3 = open(f'/home/author/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
     f3.write(file_xlsx1.content)
     f3.close
 except Exception:
     print('step 7')
 
-
-#Выключение браузера
+#######################
+##Выключение браузера##
+#######################
 driver.close()
 
- #Удаление файла со вчерашним расписанием
+##########################
+##Удаление старых файлов##
+##########################
 try:
      os.remove(f'{day_before.strftime("%d")}.{day_before.strftime("%m")}.{day_before.year}.html')
 except Exception:
