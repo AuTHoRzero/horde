@@ -1,4 +1,6 @@
-#libraries
+##############
+##Библиотеки##
+##############
 import sqlite3
 import logging
 import aiogram.utils.markdown as md
@@ -6,7 +8,6 @@ import keyboard as keyboard
 import datetime
 import calendar
 import lxml
-import requests
 import json
 import time
 import random
@@ -14,7 +15,7 @@ import asyncio
 import aioschedule
 import pandas as pd
 import schedule
-import  subprocess
+import subprocess
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -25,12 +26,15 @@ from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode, Message
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.helper import Helper, HelperMode, ListItem
-from config import bot_token, api_key, admin_id, admin2_id
+from config import bot_token, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
 from pprint import pprint
-#for use
+
+##############
+##Переменные##
+##############
 global key
 global cikl
 global x
@@ -42,9 +46,15 @@ x = 0
 y = 0
 cikl = 0
 key = 0
-#Logging
+
+###############
+##Логирование##
+###############
 logging.basicConfig(level=logging.INFO)
-#States
+
+#############
+##Состояния##
+#############
 class States(StatesGroup):
     group = State()
     setting = State()
@@ -52,11 +62,20 @@ class States(StatesGroup):
     adm1_set = State()
     sndmsg = State()
     fio = State()
-#Bot object
+
+###############
+##Объект бота##
+###############
 bot = Bot(token=bot_token)
-#Bot dispetcher
+
+############################
+##Диспетчер(Для хэндлеров)##
+############################
 dp = Dispatcher(bot, storage=MemoryStorage())
-#Weekday and date
+
+############################
+##Даты и имена дней недели##
+############################
 today_week = datetime.datetime.today().isocalendar()[1]
 today_day = datetime.datetime.today().weekday()
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
@@ -66,7 +85,10 @@ calendar.day_name[today.weekday()]
 next_day = today_day + 1
 if next_day == 7:
     next_day = 0
-#bs4
+
+###################################################
+##Парсинг уведомления с главной страницы колледжа##
+###################################################
 with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
     src1 = file.read()
 
@@ -78,14 +100,23 @@ all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next(
 all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n',all_p3.get_text(),'\n',all_p4.get_text())
-#users database
+
+#############################
+##База данных пользователей##
+#############################
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
 cur.execute('CREATE TABLE IF NOT EXISTS prepods(user_id INTEGER, prep_name TEXT, notify_times TEXT)')
-#local file send
+
+#############################
+##База данных пользователей##
+#############################
 dbfile = InputFile("users_database.db", filename="users_database.db")
-#Day
+
+################
+##Текущий день##
+################
 async def week():
     global key
     global cikl
@@ -140,7 +171,10 @@ async def week():
         cikl1 = 0
     key = cikl + 6
     key1 = cikl1 + 6
-#Function
+
+####################
+##Основные функции##
+####################
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
@@ -503,8 +537,9 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
         await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
         await state.finish()
 
-
-
+#####################
+##Админские функции##
+#####################
 @dp.message_handler(commands=['adm1_set'])
 async def Adm1_set(message: types.message, state=FSMContext):
     await States.adm1_set.set()
@@ -557,6 +592,7 @@ async def Adm1_st(message: types.message, state=FSMContext):
 async def start_f (message: types.Message):
     aioschedule.every(5).seconds.do(week)
     aioschedule.every().day.at('23:00').do(search)
+    aioschedule.every().day.at('23:10').do(buti)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
@@ -597,7 +633,9 @@ async def userlist (message: types.Message):
         await bot.send_document(message.from_user.id, dbfile)
 
 
-#scheduler
+####################################
+##Расписание уведомлений и запуска##
+####################################
 async def scheduler(message: types.Message, time):
     global x
     try:
@@ -618,8 +656,6 @@ async def scheduler_td(message: types.Message, time):
     except Exception:
         print ('Trouble with schedule')
 
-async def search():
-    subprocess.Popen(['python3', 'take_resp.py'])
 
 @dp.message_handler(commands=['test'])
 async def test(message:types.Message):
@@ -638,6 +674,15 @@ async def test(message:types.Message):
 #        a4 = f'Пара по замене: {row[3]}'
 #        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n'
 #    await message.answer(b1)
+
+###############
+##Сабпроцессы##
+###############
+async def search():
+    subprocess.Popen(['python3', 'take_resp.py'])
+
+async def buti():
+    subprocess.Popen()(['python3', 'butify.py'])
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
