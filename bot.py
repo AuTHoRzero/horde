@@ -16,6 +16,7 @@ import aioschedule
 import pandas as pd
 import schedule
 import subprocess
+import emoji
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -97,10 +98,12 @@ soup1 = BeautifulSoup(src1, "lxml")
 all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2_2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n', all_p2_1,'\n',all_p3.get_text(),'\n',all_p4.get_text())
+message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n', all_p2_1,'\n', all_p2_2,'\n','\n', all_p2_3,'\n',all_p3.get_text(),'\n',all_p4.get_text())
 
 #############################
 ##База данных пользователей##
@@ -198,7 +201,7 @@ async def register(message: types.Message):
     await bot.send_message(message.from_user.id,'Кто ты?', reply_markup=keyboard.button_who)
 
 
-@dp.message_handler(text=['Я студент'])
+@dp.message_handler(text=[f'{emoji.emojize(":school_satchel:", use_aliases=True)}Я студент'])
 async def student_register(message: types.Message):
     await States.group.set()
     await bot.send_message(message.from_user.id, 'Напиши номер своей группы')
@@ -224,7 +227,7 @@ async def group_number(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-@dp.message_handler(text=['Я преподаватель'])
+@dp.message_handler(text=[f'{emoji.emojize(":mortar_board:", use_aliases=True)}Я преподаватель'])
 async def teacher_register(message: types.Message):
     cur.execute(f'INSERT OR REPLACE INTO prepods VALUES("{message.from_user.id}","0","0")')
     conn.commit()
@@ -252,7 +255,7 @@ async def fio(message: types.Message, state: FSMContext):
         await state.finish()
 
 
-@dp.message_handler(text=['Настройки', 'Назад в настройки'])
+@dp.message_handler(text=[f'{emoji.emojize(":wrench:", use_aliases=True)}Настройки', f'{emoji.emojize(":wrench:", use_aliases=True)}Назад в настройки'])
 async def setting(message: types.Message):
     await message.answer('Добро пожаловать в меню настроек', 
     reply_markup=keyboard.button_notify,
@@ -271,14 +274,14 @@ async def rewrite_fio (message: types.Message):
     await message.answer('Введите новое ФИО\nПример: Фамилия И.О.')
 
 
-@dp.message_handler(text=['Время уведомлений'])
+@dp.message_handler(text=[f'{emoji.emojize(":clock1:", use_aliases=True)}Время уведомлений', 'Время уведомлений'])
 async def time_quest (message: types.Message):
     await message.answer('После смены времени нужно будет снова включить уведомления\nВведите время в формате: 00:00')
     await States.setting.set()
 
 
 
-@dp.message_handler(text=['Вкл/Выкл уведомлений'])
+@dp.message_handler(text=[f'{emoji.emojize(":ballot_box_with_check:", use_aliases=True)}Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
     cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
     result = cur.fetchall()
@@ -339,14 +342,14 @@ async def pare_next_day(message: types.Message):
     await message.answer('Вы будете получать уведомление на следующий день')
 
 
-@dp.message_handler(text=['Получить расписание'])
+@dp.message_handler(text=[f'{emoji.emojize(":clipboard:", use_aliases=True)}Получить расписание'])
 async def schedule_menu(message: types.Message):
     await message.answer('Выберите на какой день получить расписание', 
     reply_markup=keyboard.button_schedule_choise,
     )
 
 
-@dp.message_handler(text=['Расписание на сегодня'])
+@dp.message_handler(text=[f'{emoji.emojize(":page_facing_up:", use_aliases=True)}Расписание на сегодня'])
 async def schedule_today(message: types.Message):
     global cikl
     global key
@@ -433,7 +436,7 @@ async def schedule_today(message: types.Message):
 
 
 
-@dp.message_handler(text=['Расписание на завтра'])
+@dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
     global cikl1
     global key1
@@ -516,7 +519,7 @@ async def schedule_next_day(message: types.Message):
                 await message.answer('Если вы не получили расписание проверьте профиль')
 
 
-@dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
+@dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', f'{emoji.emojize(":arrow_left:", use_aliases=True)}Назад', 'Назад'])
 async def main_menu (message: types.Message):
     global x
     if x == 0:
@@ -530,19 +533,19 @@ async def main_menu (message: types.Message):
     await bot.send_message(message.from_user.id, f'{all_p.get_text()}\n {all_p1.get_text()}\n{all_p2.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}')
 
 
-@dp.message_handler(text=['Мой профиль'])
+@dp.message_handler(text=[f'{emoji.emojize(":briefcase:", use_aliases=True)}Мой профиль'])
 async def get_profile(message: types.Message):
     await message.answer('Какой профиль вам нужен?', reply_markup=keyboard.button_stpr)
 
 
-@dp.message_handler(text=['Студент'])
+@dp.message_handler(text=[f'{emoji.emojize(":school_satchel:", use_aliases=True)}Студент'])
 async def student (message: types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         result = cur.fetchall()
-        await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+        await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}')
     except Exception:
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
         conn = sqlite3.connect('users_database.db')
@@ -551,14 +554,14 @@ async def student (message: types.Message):
         conn.commit()
 
 
-@dp.message_handler(text=['Преподаватель'])
+@dp.message_handler(text=[f'{emoji.emojize(":mortar_board:", use_aliases=True)}Преподаватель'])
 async def profile1 (message:types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
         cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
         result1 = cur.fetchall()
-        await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}', reply_markup=keyboard.btn_back)
+        await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}')
     except Exception:
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
         conn = sqlite3.connect('users_database.db')
@@ -566,7 +569,7 @@ async def profile1 (message:types.Message):
         cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
-@dp.message_handler(text="Помощь")
+@dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
 async def user_help (message: types.Message):
     photo = ['https://sun9-45.userapi.com/impg/L_ZjDqZoxr0-Ps0fQi0-c48PjJ-UWJk64exZqw/HrcqjPtfIjE.jpg?size=840x737&quality=96&sign=e78ad3ba428e817729e80c0f02d249df&type=album', 
     'https://sun9-30.userapi.com/impg/S-bSLtCaDlC1bcUwMCDlCAyzerrNVqFgw5Ygpg/BoLXpwQ1HcY.jpg?size=608x770&quality=96&sign=e101f67bcaa95f1aec2d52a651d24cef&type=album', 
@@ -592,6 +595,14 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
         await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
         await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
         await state.finish()
+
+
+@dp.message_handler(text="Изменения")
+async def changes (message: types.Message):
+    conn = sqlite3.connect('zamen.db')
+    cur = conn.cursor()
+    result = cur.fetchall()
+    await message.answer(result)
 
 #####################
 ##Админские функции##
@@ -687,7 +698,6 @@ async def testing(message: types.Message):
 async def userlist (message: types.Message):
     if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
         await bot.send_document(message.from_user.id, dbfile)
-
 
 ####################################
 ##Расписание уведомлений и запуска##
