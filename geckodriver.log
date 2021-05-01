@@ -529,3 +529,61 @@ JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=
 1619633877979	Marionette	INFO	Stopped listening on port 37653
 JavaScript error: chrome://browser/content/browser-customization.js, line 172: NS_ERROR_NOT_INITIALIZED: 
 1619634024341	Marionette	INFO	Stopped listening on port 41277
+1619870390048	geckodriver	INFO	Listening on 127.0.0.1:55673
+1619870391038	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileGlb5JC"
+1619870396441	Marionette	INFO	Listening on port 40673
+1619870396469	Marionette	WARN	TLS certificate errors will be ignored for this session
+1619870440612	Marionette	INFO	Stopped listening on port 40673
+1619870442441	geckodriver	INFO	Listening on 127.0.0.1:49491
+1619870442447	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilevoqdmX"
+1619870447044	Marionette	INFO	Listening on port 41245
+1619870447058	Marionette	WARN	TLS certificate errors will be ignored for this session
+1619870457922	FirefoxAccounts	ERROR	FxA rejecting with error UNVERIFIED_ACCOUNT, details: undefined
+console.info: "Skipping device list refresh; not signed in"
+1619870457926	FirefoxAccounts	ERROR	Background refresh of initial profile failed: Error: UNVERIFIED_ACCOUNT(resource://gre/modules/FxAccounts.jsm:1856:18) JS Stack trace: _error@FxAccounts.jsm:1856:18
+withVerifiedAccountState/<@FxAccounts.jsm:853:20
+1619870457928	FirefoxAccounts	ERROR	FxA rejecting with error UNVERIFIED_ACCOUNT, details: undefined
+1619870457928	FirefoxAccounts	ERROR	Background refresh of initial profile failed: Error: UNVERIFIED_ACCOUNT(resource://gre/modules/FxAccounts.jsm:1856:18) JS Stack trace: _error@FxAccounts.jsm:1856:18
+withVerifiedAccountState/<@FxAccounts.jsm:853:20
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619870499633	Marionette	INFO	Stopped listening on port 41245
+1619870695497	geckodriver	INFO	Listening on 127.0.0.1:55173
+1619870695501	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile2APGPS"
+1619870700140	Marionette	INFO	Listening on port 44423
+1619870700214	Marionette	WARN	TLS certificate errors will be ignored for this session
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619870753528	Marionette	INFO	Stopped listening on port 44423
+JavaScript error: resource://gre/modules/UpdateTimerManager.jsm, line 352: TypeError: setting getter-only property "gLogEnabled"
+JavaScript error: resource://gre/modules/ModulesPing.jsm, line 70: NS_ERROR_XPC_JAVASCRIPT_ERROR_WITH_DETAILS: [JavaScript Error: "setting getter-only property "gLogEnabled"" {file: "resource://gre/modules/UpdateTimerManager.jsm" line: 352}]'[JavaScript Error: "setting getter-only property "gLogEnabled"" {file: "resource://gre/modules/UpdateTimerManager.jsm" line: 352}]' when calling method: [nsIUpdateTimerManager::registerTimer]
+1619870822179	geckodriver	INFO	Listening on 127.0.0.1:55325
+1619870822185	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilekMjGl8"
+1619870827213	Marionette	INFO	Listening on port 37977
+1619870827318	Marionette	WARN	TLS certificate errors will be ignored for this session
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619870879101	Marionette	INFO	Stopped listening on port 37977
+1619870913254	geckodriver	INFO	Listening on 127.0.0.1:57215
+1619870913258	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileYeCaVB"
+1619870917792	Marionette	INFO	Listening on port 44817
+1619870917925	Marionette	WARN	TLS certificate errors will be ignored for this session
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619870990779	Marionette	INFO	Stopped listening on port 44817
+1619871095642	geckodriver	INFO	Listening on 127.0.0.1:34077
+1619871095647	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilev9rhQl"
+1619871100309	Marionette	INFO	Listening on port 34901
+1619871100362	Marionette	WARN	TLS certificate errors will be ignored for this session
+Log warning: The log 'Services.Common.RESTRequest' is configured to use the preference 'services.common.log.logger.rest.request' - you must adjust the level by setting this preference, not by using the level setter
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+JavaScript warning: https://portal.petrocollege.ru/_layouts/15/sp.ribbon.js?rev=1F3TSGFB5%2FyAaRkjYHJL5w%3D%3D, line 2: unreachable code after return statement
+1619871177904	Marionette	INFO	Stopped listening on port 34901

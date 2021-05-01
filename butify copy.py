@@ -28,7 +28,7 @@ try:
     with open (f'{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
         src = file.read()
 
-    soup = BeautifulSoup(src, "lxml")
+    soup = BeautifulSoup(src, "xml")
 
     conn = sqlite3.connect('zamen.db')
     cur = conn.cursor()
@@ -70,7 +70,7 @@ try:
     with open (f'{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html') as file:
         src = file.read()
 
-    soup = BeautifulSoup(src, "lxml")
+    soup = BeautifulSoup(src, "xml")
 
     conn = sqlite3.connect('zamen_next.db')
     cur = conn.cursor()

@@ -31,11 +31,11 @@ b = f'Замена на {today.strftime("%d")}.{today.strftime("%m")}.{today.yea
 ###################
 ##Создание файлов##
 ###################
-inf = open(f'/home/user/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
-f = open(f'/home/user/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
-f1 = open(f'/home/user/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
-f2 = open(f'/home/user/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
-f3 = open(f'/home/user/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+inf = open(f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f = open(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
+f1 = open(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f2 = open(f'/home/author/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+f3 = open(f'/home/author/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
 
 #######################################################################
 ##Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)##
@@ -113,13 +113,13 @@ except Exception:
 ##excel студенты##
 ##################
 try:
-    driver.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
+    driver.get('https://portal.petrocollege.ru/Lists/2014')
     time.sleep(2)
-    shach_stud = driver.find_element_by_link_text('Шахматка групп (полная)')
+    shach_stud = driver.find_element_by_xpath('/html/body/form/div[3]/div/div[3]/div/div[1]/div/div/div[1]/span/div[1]/div/div/div/table/tbody/tr/td/table/tbody/tr[1]/td[2]/div/a')
     href2 = shach_stud.get_attribute('href')
     driver.get(href2)
     time.sleep(4)
-    urltoexcel = driver.find_element_by_id('{415fde80-df25-40c0-b26a-235b63facdf1}').find_element_by_tag_name('a')
+    urltoexcel = driver.find_element_by_xpath('/html/body/form/div[3]/div/div[3]/div/div[1]/div/div/div[1]/span/div[1]/table/tbody/tr/td/div/div/div/div/table/tbody/tr/td[1]/span/table[1]/tbody/tr[3]/td[2]/table/tbody/tr/td/span/a')
     urltoexcel.click
     href3 = urltoexcel.get_attribute('href')
 #    driver.get(href3)
@@ -139,12 +139,12 @@ try:
     driver.get('https://portal.petrocollege.ru/Lists/2014')
     time.sleep(2)
     time.sleep(3)
-    prep_link = driver.find_element_by_link_text('Шахматка преподавателей (полная)')
+    prep_link = driver.find_element_by_xpath('/html/body/form/div[3]/div/div[3]/div/div[1]/div/div/div[1]/span/div[1]/div/div/div/table/tbody/tr/td/table/tbody/tr[3]/td[2]/div/a')
     href4 = prep_link.get_attribute('href')
     time.sleep(1)
     driver.get(href4)
     time.sleep(2)
-    prepod_shach = driver.find_element_by_id('{8190960c-46d9-4595-bf7a-5069ca1864ba}').find_element_by_tag_name('a')
+    prepod_shach = driver.find_element_by_xpath('/html/body/form/div[3]/div/div[3]/div/div[1]/div/div/div[1]/span/div[1]/table/tbody/tr/td/div/div/div/div/table/tbody/tr/td[1]/span/table[1]/tbody/tr[3]/td[2]/table/tbody/tr/td/span/a')
     href5 = prepod_shach.get_attribute('href')
     file_xlsx1 = requests.get(href5, auth=auth)
     time.sleep(5)

@@ -1,4 +1,6 @@
-#libraries
+##############
+##Библиотеки##
+##############
 import sqlite3
 import logging
 import aiogram.utils.markdown as md
@@ -6,12 +8,14 @@ import keyboard as keyboard
 import datetime
 import calendar
 import lxml
-import requests
 import json
 import time
 import random
 import asyncio
 import aioschedule
+import pandas as pd
+import schedule
+import subprocess
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -22,29 +26,57 @@ from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode, Message
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.helper import Helper, HelperMode, ListItem
-from config import bot_token, api_key, admin_id, admin2_id
+from config import bot_token, admin_id, admin2_id
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from markdown import markdown
-#for use
+from pprint import pprint
+
+##############
+##Переменные##
+##############
+global key
+global cikl
 global x
 global y
+global chisl
+
+chisl = ''
 x = 0
 y = 0
-#Logging
+cikl = 0
+key = 0
+
+###############
+##Логирование##
+###############
 logging.basicConfig(level=logging.INFO)
-#States
+
+#############
+##Состояния##
+#############
 class States(StatesGroup):
     group = State()
     setting = State()
     adm1 = State()
     adm1_set = State()
     sndmsg = State()
-#Bot object
+    fio = State()
+
+###############
+##Объект бота##
+###############
 bot = Bot(token=bot_token)
-#Bot dispetcher
+
+############################
+##Диспетчер(Для хэндлеров)##
+############################
 dp = Dispatcher(bot, storage=MemoryStorage())
-#Weekday and date
+
+############################
+##Даты и имена дней недели##
+############################
+today_week = datetime.datetime.today().isocalendar()[1]
 today_day = datetime.datetime.today().weekday()
 days_naming = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
 days_naming_en = ["monday", "tuesday", "wednesday", "thursday", "friday","saturday", "sunday"]
@@ -53,13 +85,97 @@ calendar.day_name[today.weekday()]
 next_day = today_day + 1
 if next_day == 7:
     next_day = 0
-#users database
+
+###################################################
+##Парсинг уведомления с главной страницы колледжа##
+###################################################
+with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
+    src1 = file.read()
+
+soup1 = BeautifulSoup(src1, "lxml")
+
+all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n', all_p2_1,'\n',all_p3.get_text(),'\n',all_p4.get_text())
+
+#############################
+##База данных пользователей##
+#############################
 conn = sqlite3.connect('users_database.db')
 cur = conn.cursor()
 cur.execute('CREATE TABLE IF NOT EXISTS users(user_id INTEGER, group_number TEXT, notify_times TEXT)')
-#local file send
+cur.execute('CREATE TABLE IF NOT EXISTS prepods(user_id INTEGER, prep_name TEXT, notify_times TEXT)')
+
+#############################
+##База данных пользователей##
+#############################
 dbfile = InputFile("users_database.db", filename="users_database.db")
-#Function
+
+################
+##Текущий день##
+################
+async def week():
+    global key
+    global cikl
+    global cikl1
+    global key1
+    if (today_week % 2 == 0):
+        chisl = 'Числитель'
+    else:
+        chisl = 'Знаменатель'
+    print (chisl)
+    if (chisl == 'Знаменатель' and today_day==0):
+        cikl = 0
+        cikl1 = 6
+    elif (chisl == 'Знаменатель' and today_day==1):
+        cikl = 6
+        cikl1 = 12
+    elif (chisl == 'Знаменатель' and today_day==2):  
+        cikl = 12  
+        cikl1 = 18
+    elif (chisl == 'Знаменатель' and today_day==3):
+        cikl = 18
+        cikl1 = 24
+    elif (chisl == 'Знаменатель' and today_day==4):
+        cikl = 24
+        cikl1 = 30
+    elif (chisl == 'Знаменатель' and today_day==5):
+        cikl = 30
+        cikl1 = 100
+    elif (chisl == 'Знаменатель' and today_day==6):   
+        cikl = 100
+        cikl1 = 36
+    elif (chisl == 'Числитель' and today_day == 0):
+        cikl = 36
+        cikl1 =42
+    elif (chisl == 'Числитель' and today_day==1):
+        cikl = 42
+        cikl1 = 48
+    elif (chisl == 'Числитель' and today_day==2):  
+        cikl = 48
+        cikl1 = 54  
+    elif (chisl == 'Числитель' and today_day==3):
+        cikl = 54
+        cikl1 = 60
+    elif (chisl == 'Числитель' and today_day==4):
+        cikl = 60
+        cikl1 = 66
+    elif (chisl == 'Числитель' and today_day==5):
+        cikl = 66
+        cikl1 = 100
+    elif (chisl == 'Числитель' and today_day==6):   
+        cikl = 100  
+        cikl1 = 0
+    key = cikl + 6
+    key1 = cikl1 + 6
+
+####################
+##Основные функции##
+####################
 @dp.message_handler(commands='start')
 async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
@@ -110,10 +226,31 @@ async def group_number(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text=['Я преподаватель'])
 async def teacher_register(message: types.Message):
-    await bot.send_message(
-        message.from_user.id,
-        'Данная функция находится в разработке, пожалуйста попробуйте позднее',
+    cur.execute(f'INSERT OR REPLACE INTO prepods VALUES("{message.from_user.id}","0","0")')
+    conn.commit()
+    await States.fio.set()
+    await bot.send_message(message.from_user.id, 'Укажите свои ФИО как в расписании\nПример: Фамилия И.О.')
+
+
+@dp.message_handler(state=States.fio)
+async def fio(message: types.Message, state: FSMContext):
+    async with state.proxy() as names:
+        global fiot
+        names['fiot'] = message.text
+        await bot.send_message(message.chat.id, 
+        md.text(md.text('Ваше ФИО:', 
+        md.bold(names['fiot']))), 
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup= keyboard.button_go_main
         )
+        grouper = md.text(md.text(md.bold(names['fiot'])))
+        names = markdown(grouper)
+        fiot = ''.join(BeautifulSoup(names).findAll(text=True))
+        print(fiot)
+        cur.execute(f'UPDATE prepods SET prep_name = "{fiot}" WHERE user_id = "{message.from_user.id}"')
+        conn.commit()
+        await state.finish()
+
 
 @dp.message_handler(text=['Настройки', 'Назад в настройки'])
 async def setting(message: types.Message):
@@ -126,7 +263,12 @@ async def setting(message: types.Message):
 async def rewrite (message: types.Message):
     await States.group.set()
     await message.answer('Введите новый номер группы:')
-    
+
+
+@dp.message_handler(text=['Сменить ФИО'])
+async def rewrite_fio (message: types.Message):
+    await States.fio.set()
+    await message.answer('Введите новое ФИО\nПример: Фамилия И.О.')
 
 
 @dp.message_handler(text=['Время уведомлений'])
@@ -154,6 +296,7 @@ async def time_set (message: types.Message):
     elif x == 1 and y == 0:
         await message.answer('Уведомления на пары текущего дня включены')
         await scheduler_td(message, time)
+    
 
 
 @dp.message_handler(state=States.setting)
@@ -166,12 +309,13 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         md.text(md.text('Установленное время:', 
         md.bold(times['times_set']))), 
         parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup= keyboard.button_go_main
+        reply_markup= keyboard.button_notify
         )
         timers = md.text(md.text(md.bold(times['times_set'])))
         rework = markdown(timers)
         setted_time = ''.join(BeautifulSoup(rework).findAll(text=True))
         cur.execute(f'UPDATE users SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
+        cur.execute(f'UPDATE prepods SET notify_times = "{setted_time}" WHERE user_id = "{message.from_user.id}"')
         conn.commit()
         await state.finish()
 
@@ -204,65 +348,172 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=['Расписание на сегодня'])
 async def schedule_today(message: types.Message):
-    try:
-        await message.answer(f'Сегодня: {days_naming[today_day]}')
-        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-        res = cur.fetchall()
-        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-        all_schedule = json.loads(response.text)
+    global cikl
+    global key
+    if(cikl==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
         try:
-            schedule = all_schedule["schedule"][days_naming_en[today_day]]
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            group_num = [list(result[0])[1]][0]
+            text = ''
+            while cikl < key:
+                if (s1[cikl] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            try:
+                conn = sqlite3.connect('zamen.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                b1 = " "
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception:
+                print('Bad zamen today student')
+            await message.answer(b1)
+
+
         except Exception:
-            await message.answer('Нет данных о парах на сегодня, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-        else:
-            reply_message = ""
-            for i in range(len(schedule)+1):
+            try:
+                para_num = 1
+                conn = sqlite3.connect('users_database.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+                result = cur.fetchall()
+                stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+                s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+                s2 = (stud[f'{[list(result[0])[1]][0]}'])
+                prepodavat = [list(result[0])[1]][0]
+                text = ''
+                while cikl < key:
+                    if (s1[cikl] == 'nan'):
+                        print('1')
+                    else:
+                        text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                        cikl = cikl + 1
+                        para_num = para_num + 1
+                await message.answer(text)
                 try:
-                    lesson_json = schedule[str(i+1)][0]
-                    lesson = lesson_json['lesson']
-                    teacher = lesson_json['teacher']
-                    classroom = lesson_json['classroom']
-                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                    reply_message = f'{reply_message}\n{period}'
+                    conn = sqlite3.connect('zamen.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    b1 = " "
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 except Exception:
-                    pass
-            await bot.send_message(message.from_user.id, reply_message)
-    except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+                    print('Bad zamen today prepodavat')
+                await message.answer(b1)
+            except Exception:
+                await message.answer('Если вы не получили расписание проверьте профиль')
 
 
 
 @dp.message_handler(text=['Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
-    try:
-        await message.answer(f'Завтра: {days_naming[next_day]}')
-        cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-        res = cur.fetchall()
-        response = requests.get(f'https://petrocol.ru/schedule/{[list(res[0])[1]][0]}?json=1&key={api_key}')
-        all_schedule = json.loads(response.text)
+    global cikl1
+    global key1
+    if(cikl1==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
         try:
-            schedule = all_schedule["schedule"][days_naming_en[next_day]]
-        except Exception:
-            await message.answer('Нет данных о парах на завтра, попробуйте посмотреть на сайте:\nhttps://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
-        else:
-            reply_message = ""
-            for i in range(len(schedule)+1):
-                try:
-                    lesson_json = schedule[str(i+1)][0]
-                    lesson = lesson_json['lesson']
-                    teacher = lesson_json['teacher']
-                    classroom = lesson_json['classroom']
-                    period = f'Пара {i+1}:\n {lesson}, {teacher}, {classroom}\n'
-                    reply_message = f'{reply_message}\n{period}'
-                except Exception:
-                    pass
-            await bot.send_message(message.from_user.id, reply_message)
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            text = ''
+            while cikl1 < key1:
+                if (s1[cikl1] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
+                    cikl1 = cikl1 + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            try:
+                conn = sqlite3.connect('zamen_next.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                b1 = " "
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception:
+                print('Bad zamen today student')
+            await message.answer(b1)
 
-    except Exception:
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+        except Exception:
+            try:
+                para_num = 1
+                conn = sqlite3.connect('users_database.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+                result = cur.fetchall()
+                stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+                s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+                s2 = (stud[f'{[list(result[0])[1]][0]}'])
+                text = ''
+                while cikl1 < key1:
+                    if (s1[cikl1] == 'nan'):
+                        print('1')
+                    else:
+                        text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
+                        cikl1 = cikl1 + 1
+                        para_num = para_num + 1
+                await message.answer(text)
+                try:
+                    conn = sqlite3.connect('zamen_next.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    b1 = " "
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                except Exception:
+                    print('Bad zamen today prepodavat')
+                await message.answer(b1)
+            except Exception:
+                await message.answer('Если вы не получили расписание проверьте профиль')
 
 
 @dp.message_handler(text=['Перейти в главное меню', 'Вернутся в главное меню', 'Назад'])
@@ -273,19 +524,25 @@ async def main_menu (message: types.Message):
     if x == 1:
         sost = 'Включены'
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
         reply_markup=keyboard.button_main,
         )
+    await bot.send_message(message.from_user.id, f'{all_p.get_text()}\n {all_p1.get_text()}\n{all_p2.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}')
 
 
 @dp.message_handler(text=['Мой профиль'])
 async def get_profile(message: types.Message):
+    await message.answer('Какой профиль вам нужен?', reply_markup=keyboard.button_stpr)
+
+
+@dp.message_handler(text=['Студент'])
+async def student (message: types.Message):
     try:
         conn = sqlite3.connect('users_database.db')
         cur = conn.cursor()
         cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
         result = cur.fetchall()
-        await bot.send_message(message.from_user.id, f'ID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
+        await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}', reply_markup=keyboard.btn_back)
     except Exception:
         await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
         conn = sqlite3.connect('users_database.db')
@@ -294,6 +551,20 @@ async def get_profile(message: types.Message):
         conn.commit()
 
 
+@dp.message_handler(text=['Преподаватель'])
+async def profile1 (message:types.Message):
+    try:
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'SELECT * FROM prepods WHERE user_id = "{message.from_user.id}"')
+        result1 = cur.fetchall()
+        await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}', reply_markup=keyboard.btn_back)
+    except Exception:
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
+        conn = sqlite3.connect('users_database.db')
+        cur = conn.cursor()
+        cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
+        conn.commit()
 
 @dp.message_handler(text="Помощь")
 async def user_help (message: types.Message):
@@ -322,8 +593,9 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
         await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
         await state.finish()
 
-
-
+#####################
+##Админские функции##
+#####################
 @dp.message_handler(commands=['adm1_set'])
 async def Adm1_set(message: types.message, state=FSMContext):
     await States.adm1_set.set()
@@ -372,13 +644,54 @@ async def Adm1_st(message: types.message, state=FSMContext):
         print ("bad")
 
 
+@dp.message_handler(commands=['start_f'])
+async def start_f (message: types.Message):
+    aioschedule.every(5).seconds.do(week)
+    aioschedule.every().day.at('23:00').do(search)
+    aioschedule.every().day.at('23:10').do(buti)
+    while True:
+        await aioschedule.run_pending()
+        await asyncio.sleep(1)
+        
+
+@dp.message_handler(commands=['test_com'])
+async def testing(message: types.Message):
+    global cikl
+    global key
+    if(cikl==100):
+        await message.answer('Нет расписания на воскресенье')
+    else:
+        try:
+            para_num = 1
+            conn = sqlite3.connect('users_database.db')
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
+            result = cur.fetchall()
+            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
+            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
+            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            text = ''
+            while cikl < key:
+                if (s1[cikl] == 'nan'):
+                    print('1')
+                else:
+                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
+            await message.answer(text)
+            cikl = key - 6
+        except Exception:
+            print ('error in take schedule for today')
+
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
     if admin_id == f'{message.from_user.id}' or admin2_id == f'{message.from_user.id}':
         await bot.send_document(message.from_user.id, dbfile)
 
 
-#scheduler
+####################################
+##Расписание уведомлений и запуска##
+####################################
 async def scheduler(message: types.Message, time):
     global x
     try:
@@ -398,6 +711,27 @@ async def scheduler_td(message: types.Message, time):
             await asyncio.sleep(1)
     except Exception:
         print ('Trouble with schedule')
+
+
+@dp.message_handler(commands=['test'])
+async def test(message:types.Message):
+    conn = sqlite3.connect('zamen.db')
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "Сафронов А.М."')
+    res1 = cur.fetchall()
+    b1 = " "
+    schet = 0
+    print (res1)
+
+
+###############
+##Сабпроцессы##
+###############
+async def search():
+    subprocess.Popen(['python3', 'take_resp.py'])
+
+async def buti():
+    subprocess.Popen()(['python3', 'butify.py'])
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
