@@ -4,11 +4,11 @@
 from bs4 import BeautifulSoup
 import requests
 from requests_ntlm2 import HttpNtlmAuth
-from fake_useragent import UserAgent
 from pprint import pprint
 import pandas as pd
 import sqlite3
 import datetime
+import os
 
 #########
 ##Время##
@@ -104,3 +104,12 @@ try:
             conn.commit()
 except Exception:
     print('No next zamen')
+
+try:
+    os.remove(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
+except Exception:
+    print('1')
+try:
+    os.remove(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
+except Exception:
+    print('2')
