@@ -90,20 +90,25 @@ if next_day == 7:
 ###################################################
 ##Парсинг уведомления с главной страницы колледжа##
 ###################################################
-with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
-    src1 = file.read()
+async def started():
+    global message_for_see
+    try:
+        with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
+            src1 = file.read()
 
-soup1 = BeautifulSoup(src1, "lxml")
+        soup1 = BeautifulSoup(src1, "lxml")
 
-all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2_2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}"
+        all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p2_2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+        message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p2.get_text()}\n{all_p4.get_text()}"
+    except Exception:
+        print('None')
 
 #############################
 ##База данных пользователей##
@@ -183,7 +188,7 @@ async def week():
 async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
-    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
+    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nБерозко Роман\nАверин Андрей\n\nCтуденты группы 39-55'
 #    await message.answer(
 #        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
 #        reply_markup=keyboard.button_register
@@ -262,13 +267,13 @@ async def setting(message: types.Message):
     )
 
 
-@dp.message_handler(text=['Сменить группу'])
+@dp.message_handler(text=[f'{emoji.emojize(":card_index:", use_aliases=True)}Сменить группу'])
 async def rewrite (message: types.Message):
     await States.group.set()
     await message.answer('Введите новый номер группы:')
 
 
-@dp.message_handler(text=['Сменить ФИО'])
+@dp.message_handler(text=[f'{emoji.emojize(":name_badge:", use_aliases=True)}Сменить ФИО'])
 async def rewrite_fio (message: types.Message):
     await States.fio.set()
     await message.answer('Введите новое ФИО\nПример: Фамилия И.О.')
@@ -278,7 +283,6 @@ async def rewrite_fio (message: types.Message):
 async def time_quest (message: types.Message):
     await message.answer('После смены времени нужно будет снова включить уведомления\nВведите время в формате: 00:00')
     await States.setting.set()
-
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":ballot_box_with_check:", use_aliases=True)}Вкл/Выкл уведомлений'])
@@ -301,7 +305,6 @@ async def time_set (message: types.Message):
         await scheduler_td(message, time)
     
 
-
 @dp.message_handler(state=States.setting)
 async def times_setting_set (message: types.Message, state = FSMContext):
     async with state.proxy() as times:
@@ -323,19 +326,19 @@ async def times_setting_set (message: types.Message, state = FSMContext):
         await state.finish()
 
 
-@dp.message_handler(text=['Пары на сегодня/завтра'])
+@dp.message_handler(text=[f'{emoji.emojize(":book:", use_aliases=True)}Пары на сегодня/завтра'])
 async def change_day(message: types.Message):
     await message.answer('На какой день вы хотите получать расписание в установленное время?', reply_markup=keyboard.btn_change_day)
 
 
-@dp.message_handler(text=['На сегодня'])
+@dp.message_handler(text=[f'{emoji.emojize(":notebook:", use_aliases=True)}На сегодня'])
 async def pare_today(message: types.Message):
     global y
     y = 0
     await message.answer('Вы будете получать уведомление на текущий день')
 
 
-@dp.message_handler(text=['На завтра'])
+@dp.message_handler(text=[f'{emoji.emojize(":notebook_with_decorative_cover:", use_aliases=True)}На завтра'])
 async def pare_next_day(message: types.Message):
     global y
     y = 1
@@ -433,7 +436,6 @@ async def schedule_today(message: types.Message):
                 await message.answer('Если вы не получили расписание проверьте профиль')
 
 
-
 @dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
     global cikl1
@@ -521,14 +523,13 @@ async def schedule_next_day(message: types.Message):
 async def main_menu (message: types.Message):
     global x
     if x == 0:
-        sost = 'Выключены'
+        sost = f"Выкл{emoji.emojize(':ballot_box_with_check:', use_aliases=True)}"
     if x == 1:
-        sost = 'Включены'
+        sost = f"Вкл{emoji.emojize(':white_check_mark:', use_aliases=True)}"
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
         reply_markup=keyboard.button_main,
         )
-    await bot.send_message(message.from_user.id, f'{message_for_see}')
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":briefcase:", use_aliases=True)}Мой профиль'])
@@ -567,6 +568,7 @@ async def profile1 (message:types.Message):
         cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
+
 @dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
 async def user_help (message: types.Message):
     photo = ['https://sun9-45.userapi.com/impg/L_ZjDqZoxr0-Ps0fQi0-c48PjJ-UWJk64exZqw/HrcqjPtfIjE.jpg?size=840x737&quality=96&sign=e78ad3ba428e817729e80c0f02d249df&type=album', 
@@ -574,7 +576,7 @@ async def user_help (message: types.Message):
     'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
     ]
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-    await message.answer('Не готово...\nОтправить сообщение разработчикам: /msgtadm', reply_markup = keyboard.btn_back)
+    await message.answer('Отправить сообщение разработчикам: /msgtadm\nПройти регистрацию с самого начала /start\n\n©Author', reply_markup = keyboard.btn_back)
     
 #dop commands
 @dp.message_handler(commands=['msgtadm'])
@@ -599,12 +601,16 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
         await state.finish()
 
 
+@dp.message_handler(text=f'{emoji.emojize(":exclamation:", use_aliases=True)}Внимание')
+async def waern (message: types.Message):
+    global message_for_see
+    await message.answer(message_for_see, reply_markup=keyboard.btn_back)
+
+
 @dp.message_handler(text="Изменения")
 async def changes (message: types.Message):
-    conn = sqlite3.connect('zamen.db')
-    cur = conn.cursor()
-    result = cur.fetchall()
-    await message.answer(result)
+    sender = InputFile('/home/author/horde/table.txt', 'zameni_today.txt')
+    await bot.send_document(message.from_user.id, sender)
 
 #####################
 ##Админские функции##
@@ -659,42 +665,14 @@ async def Adm1_st(message: types.message, state=FSMContext):
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(2).seconds.do(week)
-    aioschedule.every().day.at('23:00').do(search)
-    aioschedule.every().day.at('23:10').do(buti)
+    aioschedule.every(10).seconds.do(started)
+    aioschedule.every(5).seconds.do(week)
+    aioschedule.every().day.at('01:00').do(search)
+    aioschedule.every().day.at('01:05').do(buti)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
         
-
-@dp.message_handler(commands=['test_com'])
-async def testing(message: types.Message):
-    global cikl
-    global key
-    if(cikl==100):
-        await message.answer('Нет расписания на воскресенье')
-    else:
-        try:
-            para_num = 1
-            conn = sqlite3.connect('users_database.db')
-            cur = conn.cursor()
-            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-            result = cur.fetchall()
-            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
-            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-            s2 = (stud[f'{[list(result[0])[1]][0]}'])
-            text = ''
-            while cikl < key:
-                if (s1[cikl] == 'nan'):
-                    print('1')
-                else:
-                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
-                    cikl = cikl + 1
-                    para_num = para_num + 1
-            await message.answer(text)
-            cikl = key - 6
-        except Exception:
-            print ('error in take schedule for today')
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
@@ -727,20 +705,7 @@ async def scheduler_td(message: types.Message, time):
 
 @dp.message_handler(commands=['test'])
 async def test(message:types.Message):
-    conn = sqlite3.connect('zamen_next.db')
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%10-70%"')
-    res1 = cur.fetchall()
-    b1 = " "
-    schet = 0
-    for row in res1:
-        schet = schet + 1
-        a1 = f"Группа: {row[0]}"
-        a2 = f'Номер пары: {row[1]}'
-        a3 = f'Пара по расписанию: {row[2]}'
-        a4 = f'Пара по замене: {row[3]}'
-        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-    await message.answer(b1)
+    print("test")
 
 ###############
 ##Сабпроцессы##
@@ -750,6 +715,7 @@ async def search():
 
 async def buti():
     subprocess.Popen()(['python3', 'butify.py'])
+
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
