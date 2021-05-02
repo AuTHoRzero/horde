@@ -364,7 +364,6 @@ async def schedule_today(message: types.Message):
             result = cur.fetchall()
             stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
             s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-            s2 = (stud[f'{[list(result[0])[1]][0]}'])
             group_num = [list(result[0])[1]][0]
             text = ''
             while cikl < key:
@@ -403,7 +402,6 @@ async def schedule_today(message: types.Message):
                 result = cur.fetchall()
                 stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-                s2 = (stud[f'{[list(result[0])[1]][0]}'])
                 prepodavat = [list(result[0])[1]][0]
                 text = ''
                 while cikl < key:
@@ -451,7 +449,7 @@ async def schedule_next_day(message: types.Message):
             result = cur.fetchall()
             stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
             s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-            s2 = (stud[f'{[list(result[0])[1]][0]}'])
+            group_num = [list(result[0])[1]][0]
             text = ''
             while cikl1 < key1:
                 if (s1[cikl1] == 'nan'):
@@ -476,7 +474,7 @@ async def schedule_next_day(message: types.Message):
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
             except Exception:
-                print('Bad zamen today student')
+                print('Bad zamen next day student')
             await message.answer(b1)
 
         except Exception:
@@ -488,7 +486,7 @@ async def schedule_next_day(message: types.Message):
                 result = cur.fetchall()
                 stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-                s2 = (stud[f'{[list(result[0])[1]][0]}'])
+                prepodavat = [list(result[0])[1]][0]
                 text = ''
                 while cikl1 < key1:
                     if (s1[cikl1] == 'nan'):
@@ -587,13 +585,17 @@ async def msgtoadmins(message: types.Message):
 
 @dp.message_handler(state=States.sndmsg)
 async def msgtoadminist(message: types.Message, state= FSMContext):
-    async with state.proxy() as msg:
-        msg['bef'] = message.text
-        bef = md.text(md.text(md.bold(msg['bef'])))
-        reworkbef = markdown(bef)
-        tgo = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
-        await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
-        await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
+    try:
+        async with state.proxy() as msg:
+            msg['bef'] = message.text
+            bef = md.text(md.text(md.bold(msg['bef'])))
+            reworkbef = markdown(bef)
+            tgo = ''.join(BeautifulSoup(reworkbef).findAll(text=True))
+            await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
+            await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
+            await state.finish()
+    except Exception:
+        await message.answer('Сообщение не доставлено одному из администраторов но вам в скором времени ответят')
         await state.finish()
 
 
@@ -657,7 +659,7 @@ async def Adm1_st(message: types.message, state=FSMContext):
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(5).seconds.do(week)
+    aioschedule.every(2).seconds.do(week)
     aioschedule.every().day.at('23:00').do(search)
     aioschedule.every().day.at('23:10').do(buti)
     while True:
@@ -725,14 +727,20 @@ async def scheduler_td(message: types.Message, time):
 
 @dp.message_handler(commands=['test'])
 async def test(message:types.Message):
-    conn = sqlite3.connect('zamen.db')
+    conn = sqlite3.connect('zamen_next.db')
     cur = conn.cursor()
-    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "Сафронов А.М."')
+    cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%10-70%"')
     res1 = cur.fetchall()
     b1 = " "
     schet = 0
-    print (res1)
-
+    for row in res1:
+        schet = schet + 1
+        a1 = f"Группа: {row[0]}"
+        a2 = f'Номер пары: {row[1]}'
+        a3 = f'Пара по расписанию: {row[2]}'
+        a4 = f'Пара по замене: {row[3]}'
+        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+    await message.answer(b1)
 
 ###############
 ##Сабпроцессы##
