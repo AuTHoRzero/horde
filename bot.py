@@ -103,7 +103,7 @@ all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next(
 all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
 all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-message_for_see = (all_p.get_text(),'\n', all_p1.get_text(),'\n',all_p2.get_text(),'\n', all_p2_1,'\n', all_p2_2,'\n','\n', all_p2_3,'\n',all_p3.get_text(),'\n',all_p4.get_text())
+message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}"
 
 #############################
 ##База данных пользователей##
@@ -528,7 +528,7 @@ async def main_menu (message: types.Message):
         f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\n(Уведомление о парах на следующий день)\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
         reply_markup=keyboard.button_main,
         )
-    await bot.send_message(message.from_user.id, f'{all_p.get_text()}\n {all_p1.get_text()}\n{all_p2.get_text()}\n{all_p3.get_text()}\n{all_p4.get_text()}')
+    await bot.send_message(message.from_user.id, f'{message_for_see}')
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":briefcase:", use_aliases=True)}Мой профиль'])
