@@ -354,6 +354,7 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=[f'{emoji.emojize(":page_facing_up:", use_aliases=True)}Расписание на сегодня'])
 async def schedule_today(message: types.Message):
+    await week()
     global cikl
     global key
     if(cikl==100):
@@ -438,6 +439,7 @@ async def schedule_today(message: types.Message):
 
 @dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
+    await week()
     global cikl1
     global key1
     if(cikl1==100):
@@ -603,6 +605,7 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
 
 @dp.message_handler(text=f'{emoji.emojize(":exclamation:", use_aliases=True)}Внимание')
 async def waern (message: types.Message):
+    await started()
     global message_for_see
     await message.answer(message_for_see, reply_markup=keyboard.btn_back)
 
@@ -665,10 +668,8 @@ async def Adm1_st(message: types.message, state=FSMContext):
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(10).seconds.do(started)
-    aioschedule.every(5).seconds.do(week)
-    aioschedule.every().day.at('01:00').do(search)
-    aioschedule.every().day.at('01:05').do(buti)
+    aioschedule.every(60).minutes.do(search)
+    aioschedule.every(64).minutes.do(buti)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
@@ -714,7 +715,7 @@ async def search():
     subprocess.Popen(['python3', 'take_resp.py'])
 
 async def buti():
-    subprocess.Popen()(['python3', 'butify.py'])
+    subprocess.Popen(['python3', 'butify.py'])
 
 
 if __name__=='__main__':
