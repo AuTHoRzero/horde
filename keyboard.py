@@ -45,22 +45,3 @@ btn_change_day = ReplyKeyboardMarkup(resize_keyboard=True).row(today, next_day).
 student = KeyboardButton(f'{emoji.emojize(":school_satchel:", use_aliases=True)}Студент')
 prepod = KeyboardButton(f'{emoji.emojize(":mortar_board:", use_aliases=True)}Преподаватель')
 button_stpr = ReplyKeyboardMarkup(resize_keyboard=True).row(student, prepod).add(back_btn)
-
-#fun
-hi = KeyboardButton('Привет)')
-hi_btn = ReplyKeyboardMarkup(resize_keyboard=True).add(hi)
-
-hi1 = KeyboardButton('Спасибо')
-hi2 = KeyboardButton('Нет')
-hi_btn1 = ReplyKeyboardMarkup(resize_keyboard=True).row(hi1, hi2)
-
-hi3 = KeyboardButton('1')
-hi4 = KeyboardButton('2')
-hi_btn2 = ReplyKeyboardMarkup(resize_keyboard=True).row(hi3, hi4)
-
-hi5 = KeyboardButton('Дальше')
-hi_btn3 = ReplyKeyboardMarkup(resize_keyboard=True).add(hi5)
-
-hi6 = KeyboardButton('Пагнали')
-hi7 = KeyboardButton('Конец(')
-hi_btn4 = ReplyKeyboardMarkup(resize_keyboard=True).add(hi6).add(hi7)
