@@ -28,6 +28,7 @@ day_before = today - datetime.timedelta(days=1)
 a = f'Замена на {tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}г., {days_naming[next_day]}'
 b = f'Замена на {today.strftime("%d")}.{today.strftime("%m")}.{today.year}г., {days_naming[today_day]}'
 
+print(f'{a}\n{b}')
 ###################
 ##Создание файлов##
 ###################
@@ -40,6 +41,7 @@ f3 = open(f'/home/author/horde/prep_{today.strftime("%d")}.{today.strftime("%m")
 #######################################################################
 ##Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)##
 #######################################################################
+#profile = webdriver.FirefoxProfile('/home/author/.mozilla/firefox/jb93v9bl.default-esr')
 option = webdriver.FirefoxOptions()
 option.add_argument("user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
 driver = webdriver.Firefox(options=option)
@@ -99,7 +101,7 @@ except Exception:
 try:
     driver.get('https://portal.petrocollege.ru/Pages/responsiveSh-aspx.aspx')
     time.sleep(2)
-    zamen_tod = driver.find_element_by_link_text(b)
+    zamen_tod = driver.find_element_by_partial_link_text(b)
     href1 = zamen_tod.get_attribute('href')
     time.sleep(2)
     driver.get(href1)

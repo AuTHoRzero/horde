@@ -529,7 +529,7 @@ async def main_menu (message: types.Message):
     if x == 1:
         sost = f"Вкл{emoji.emojize(':white_check_mark:', use_aliases=True)}"
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n{emoji.emojize(":exclamation:", use_aliases=True)}ЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР ГРУППЫ{emoji.emojize(":exclamation:", use_aliases=True)}', 
         reply_markup=keyboard.button_main,
         )
 
@@ -548,11 +548,7 @@ async def student (message: types.Message):
         result = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав /start')
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":mortar_board:", use_aliases=True)}Преподаватель'])
@@ -564,11 +560,7 @@ async def profile1 (message:types.Message):
         result1 = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав /start')
 
 
 @dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
@@ -668,11 +660,11 @@ async def Adm1_st(message: types.message, state=FSMContext):
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(60).minutes.do(search)
-    aioschedule.every(64).minutes.do(buti)
     while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
+        await search()
+        await asyncio.sleep(300)
+        await buti()
+        await asyncio.sleep(3600)
         
 
 @dp.message_handler(commands=['adm_usr_list'])
