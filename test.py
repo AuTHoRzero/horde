@@ -188,7 +188,7 @@ async def week():
 async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
-    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55'
+    texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nБерозко Роман\nАверин Андрей\n\nCтуденты группы 39-55'
 #    await message.answer(
 #        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
 #        reply_markup=keyboard.button_register
@@ -285,7 +285,6 @@ async def time_quest (message: types.Message):
     await States.setting.set()
 
 
-
 @dp.message_handler(text=[f'{emoji.emojize(":ballot_box_with_check:", use_aliases=True)}Вкл/Выкл уведомлений'])
 async def time_set (message: types.Message):
     cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
@@ -305,7 +304,6 @@ async def time_set (message: types.Message):
         await message.answer('Уведомления на пары текущего дня включены')
         await scheduler_td(message, time)
     
-
 
 @dp.message_handler(state=States.setting)
 async def times_setting_set (message: types.Message, state = FSMContext):
@@ -333,14 +331,14 @@ async def change_day(message: types.Message):
     await message.answer('На какой день вы хотите получать расписание в установленное время?', reply_markup=keyboard.btn_change_day)
 
 
-@dp.message_handler(text=['На сегодня'])
+@dp.message_handler(text=[f'{emoji.emojize(":notebook:", use_aliases=True)}На сегодня'])
 async def pare_today(message: types.Message):
     global y
     y = 0
     await message.answer('Вы будете получать уведомление на текущий день')
 
 
-@dp.message_handler(text=['На завтра'])
+@dp.message_handler(text=[f'{emoji.emojize(":notebook_with_decorative_cover:", use_aliases=True)}На завтра'])
 async def pare_next_day(message: types.Message):
     global y
     y = 1
@@ -356,6 +354,7 @@ async def schedule_menu(message: types.Message):
 
 @dp.message_handler(text=[f'{emoji.emojize(":page_facing_up:", use_aliases=True)}Расписание на сегодня'])
 async def schedule_today(message: types.Message):
+    await week()
     global cikl
     global key
     if(cikl==100):
@@ -438,9 +437,9 @@ async def schedule_today(message: types.Message):
                 await message.answer('Если вы не получили расписание проверьте профиль')
 
 
-
 @dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
+    await week()
     global cikl1
     global key1
     if(cikl1==100):
@@ -571,6 +570,7 @@ async def profile1 (message:types.Message):
         cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
         conn.commit()
 
+
 @dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
 async def user_help (message: types.Message):
     photo = ['https://sun9-45.userapi.com/impg/L_ZjDqZoxr0-Ps0fQi0-c48PjJ-UWJk64exZqw/HrcqjPtfIjE.jpg?size=840x737&quality=96&sign=e78ad3ba428e817729e80c0f02d249df&type=album', 
@@ -578,7 +578,7 @@ async def user_help (message: types.Message):
     'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
     ]
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-    await message.answer('Не готово...\nОтправить сообщение разработчикам: /msgtadm', reply_markup = keyboard.btn_back)
+    await message.answer('Отправить сообщение разработчикам: /msgtadm\nПройти регистрацию с самого начала /start\n\n©Author', reply_markup = keyboard.btn_back)
     
 #dop commands
 @dp.message_handler(commands=['msgtadm'])
@@ -605,8 +605,10 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
 
 @dp.message_handler(text=f'{emoji.emojize(":exclamation:", use_aliases=True)}Внимание')
 async def waern (message: types.Message):
+    await started()
     global message_for_see
     await message.answer(message_for_see, reply_markup=keyboard.btn_back)
+
 
 @dp.message_handler(text="Изменения")
 async def changes (message: types.Message):
@@ -666,43 +668,12 @@ async def Adm1_st(message: types.message, state=FSMContext):
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(10).seconds.do(started)
-    aioschedule.every(2).seconds.do(week)
-    aioschedule.every().day.at('01:00').do(search)
-    aioschedule.every().day.at('01:05').do(buti)
+    aioschedule.every(60).minutes.do(search)
+    aioschedule.every(64).minutes.do(buti)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
         
-
-@dp.message_handler(commands=['test_com'])
-async def testing(message: types.Message):
-    global cikl
-    global key
-    if(cikl==100):
-        await message.answer('Нет расписания на воскресенье')
-    else:
-        try:
-            para_num = 1
-            conn = sqlite3.connect('users_database.db')
-            cur = conn.cursor()
-            cur.execute(f'SELECT * FROM users WHERE user_id = "{message.from_user.id}"')
-            result = cur.fetchall()
-            stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
-            s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
-            s2 = (stud[f'{[list(result[0])[1]][0]}'])
-            text = ''
-            while cikl < key:
-                if (s1[cikl] == 'nan'):
-                    print('1')
-                else:
-                    text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
-                    cikl = cikl + 1
-                    para_num = para_num + 1
-            await message.answer(text)
-            cikl = key - 6
-        except Exception:
-            print ('error in take schedule for today')
 
 @dp.message_handler(commands=['adm_usr_list'])
 async def userlist (message: types.Message):
@@ -735,20 +706,7 @@ async def scheduler_td(message: types.Message, time):
 
 @dp.message_handler(commands=['test'])
 async def test(message:types.Message):
-    conn = sqlite3.connect('zamen_next.db')
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%10-70%"')
-    res1 = cur.fetchall()
-    b1 = " "
-    schet = 0
-    for row in res1:
-        schet = schet + 1
-        a1 = f"Группа: {row[0]}"
-        a2 = f'Номер пары: {row[1]}'
-        a3 = f'Пара по расписанию: {row[2]}'
-        a4 = f'Пара по замене: {row[3]}'
-        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-    await message.answer(b1)
+    print("test")
 
 ###############
 ##Сабпроцессы##
@@ -757,7 +715,8 @@ async def search():
     subprocess.Popen(['python3', 'take_resp.py'])
 
 async def buti():
-    subprocess.Popen()(['python3', 'butify.py'])
+    subprocess.Popen(['python3', 'butify.py'])
+
 
 if __name__=='__main__':
     executor.start_polling(dp, skip_updates=True)
