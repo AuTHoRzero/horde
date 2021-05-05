@@ -93,7 +93,7 @@ if next_day == 7:
 async def started():
     global message_for_see
     try:
-        with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
+        with open (f'/home/{os.getlogin()}/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
             src1 = file.read()
 
         soup1 = BeautifulSoup(src1, "lxml")
