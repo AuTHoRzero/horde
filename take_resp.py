@@ -32,11 +32,11 @@ print(f'{a}\n{b}')
 ###################
 ##Создание файлов##
 ###################
-inf = open(f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
-f = open(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
-f1 = open(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
-f2 = open(f'/home/author/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
-f3 = open(f'/home/author/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+inf = open(f'/home/{os.getlogin()}/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f = open(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html',"w")
+f1 = open(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html', "w")
+f2 = open(f'/home/{os.getlogin()}/horde/stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
+f3 = open(f'/home/{os.getlogin()}/horde/prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx', "wb")
 
 #######################################################################
 ##Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)##

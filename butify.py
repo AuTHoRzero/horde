@@ -106,10 +106,10 @@ except Exception:
     print('No next zamen')
 
 try:
-    os.remove(f'/home/author/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
+    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
 except Exception:
     print('1')
 try:
-    os.remove(f'/home/author/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
+    os.remove(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
 except Exception:
     print('2')
