@@ -17,6 +17,7 @@ import pandas as pd
 import schedule
 import subprocess
 import emoji
+import os
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -36,11 +37,7 @@ from pprint import pprint
 ##############
 ##Переменные##
 ##############
-global key
-global cikl
-global x
-global y
-global chisl
+global key, chisl, x, y, cikl
 
 chisl = ''
 x = 0
@@ -135,7 +132,6 @@ async def week():
         chisl = 'Числитель'
     else:
         chisl = 'Знаменатель'
-    print (chisl)
     if (chisl == 'Знаменатель' and today_day==0):
         cikl = 0
         cikl1 = 6
@@ -189,10 +185,6 @@ async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
     texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nБерозко Роман\nАверин Андрей\n\nCтуденты группы 39-55'
-#    await message.answer(
-#        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
-#        reply_markup=keyboard.button_register
-#        )
     await bot.send_photo(message.from_user.id, 
         'https://www.directum.ru/application/images/catalog/34597121.PNG', 
         texter, 
@@ -203,13 +195,17 @@ async def start(message : types.Message):
 
 @dp.message_handler(text=['Регистрация'])
 async def register(message: types.Message):
-    await bot.send_message(message.from_user.id,'Кто ты?', reply_markup=keyboard.button_who)
+    await bot.send_message(message.from_user.id,'Кто ты?',
+    reply_markup=keyboard.button_who,
+    )
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":school_satchel:", use_aliases=True)}Я студент'])
 async def student_register(message: types.Message):
     await States.group.set()
-    await bot.send_message(message.from_user.id, 'Напиши номер своей группы')
+    await bot.send_message(message.from_user.id,
+    'Напиши номер своей группы',
+    )
 
 
 @dp.message_handler(state=States.group)
@@ -328,7 +324,9 @@ async def times_setting_set (message: types.Message, state = FSMContext):
 
 @dp.message_handler(text=[f'{emoji.emojize(":book:", use_aliases=True)}Пары на сегодня/завтра'])
 async def change_day(message: types.Message):
-    await message.answer('На какой день вы хотите получать расписание в установленное время?', reply_markup=keyboard.btn_change_day)
+    await message.answer('На какой день вы хотите получать расписание в установленное время?',
+    reply_markup=keyboard.btn_change_day,
+    )
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":notebook:", use_aliases=True)}На сегодня'])
