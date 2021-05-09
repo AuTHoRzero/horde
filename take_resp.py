@@ -41,10 +41,10 @@ f3 = open(f'/home/{os.getlogin()}/horde/prep_{today.strftime("%d")}.{today.strft
 #######################################################################
 ##Авторизация в аккаунте Firefox (нужно чтоб пройти ntlm авторизацию)##
 #######################################################################
-#profile = webdriver.FirefoxProfile('/home/author/.mozilla/firefox/jb93v9bl.default-esr')
+profile = webdriver.FirefoxProfile('/home/author/.mozilla/firefox/jb93v9bl.default-esr')
 option = webdriver.FirefoxOptions()
 option.add_argument("user-agent=Mozila/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
-driver = webdriver.Firefox(options=option)
+driver = webdriver.Firefox(profile, options=option)
 action = ActionChains(driver)
 try:
     driver.get('https://accounts.firefox.com/?context=fx_desktop_v3&entrypoint=fxa_discoverability_native&action=email&service=sync')

@@ -369,8 +369,11 @@ async def schedule_today(message: types.Message):
             group_num = [list(result[0])[1]][0]
             text = ''
             while cikl < key:
-                if (s1[cikl] == 'nan'):
-                    print('1')
+                skip = str(s1[cikl])
+                if (skip == 'nan'):
+                    text = f'{text}\n\n{para_num} пара:\n  -'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
                 else:
                     text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
                     cikl = cikl + 1
@@ -406,9 +409,13 @@ async def schedule_today(message: types.Message):
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
                 prepodavat = [list(result[0])[1]][0]
                 text = ''
+                skip = ''
                 while cikl < key:
-                    if (s1[cikl] == 'nan'):
-                        print('1')
+                    skip = str(s1[cikl])
+                    if (skip == 'nan'):
+                        text = f'{text}\n\n{para_num} пара:\n  -'
+                        cikl = cikl + 1
+                        para_num = para_num + 1
                     else:
                         text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
                         cikl = cikl + 1
@@ -452,10 +459,14 @@ async def schedule_next_day(message: types.Message):
             stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
             s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
             group_num = [list(result[0])[1]][0]
+            skip = ''
             text = ''
             while cikl1 < key1:
-                if (s1[cikl1] == 'nan'):
-                    print('1')
+                skip = str(s1[cikl1])
+                if (skip == 'nan'):
+                    text = f'{text}\n\n{para_num} пара:\n  -'
+                    cikl1 = cikl1 + 1
+                    para_num = para_num + 1
                 else:
                     text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
                     cikl1 = cikl1 + 1
@@ -489,10 +500,14 @@ async def schedule_next_day(message: types.Message):
                 stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
                 prepodavat = [list(result[0])[1]][0]
+                skip = ''
                 text = ''
                 while cikl1 < key1:
-                    if (s1[cikl1] == 'nan'):
-                        print('1')
+                    skip = str(s1[cikl1])
+                    if (skip == 'nan'):
+                        text = f'{text}\n\n{para_num} пара:\n  -'
+                        cikl1 = cikl1 + 1
+                        para_num = para_num + 1  
                     else:
                         text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
                         cikl1 = cikl1 + 1
