@@ -86,14 +86,17 @@ try:
         for rw in table.find_all("tbody"):
             rows = rw.find_all('tr')
             for row in rows:
-                first = row.find_all('td')
-                num_gr = first[0].get_text()
-                num_les = first[1].get_text()
-                less_do = first[2].get_text()
-                less_af = first[3].get_text()
+                try:
+                    first = row.find_all('td')
+                    num_gr = first[0].get_text()
+                    num_les = first[1].get_text()
+                    less_do = first[2].get_text()
+                    less_af = first[3].get_text()
 #                print(f'{num_gr} {num_les} {less_do} {less_af}')
-                cur.execute(f'INSERT OR REPLACE INTO raspis VALUES("{num_gr}","{num_les}","{less_do}","{less_af}")')
-                conn.commit()
+                    cur.execute(f'INSERT OR REPLACE INTO raspis VALUES("{num_gr}","{num_les}","{less_do}","{less_af}")')
+                    conn.commit()
+                except Exception:
+                    pass
     except Exception:
         print("2.1")
 
@@ -115,11 +118,11 @@ try:
 except Exception:
     print('No next zamen')
 
-try:
-    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
-except Exception:
-    print('Cant delete')
-try:
-    os.remove(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
-except Exception:
-    print('Cant delete 2')
+#try:
+#    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
+#except Exception:
+#    print('Cant delete')
+#try:
+#    os.remove(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
+#except Exception:
+#    print('Cant delete 2')
