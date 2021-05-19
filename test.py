@@ -8,7 +8,6 @@ import keyboard as keyboard
 import datetime
 import calendar
 import lxml
-import json
 import time
 import random
 import asyncio
@@ -17,6 +16,7 @@ import pandas as pd
 import schedule
 import subprocess
 import emoji
+import os
 
 from aiogram.types import InputFile
 from aiogram import Bot, types, Dispatcher
@@ -36,11 +36,7 @@ from pprint import pprint
 ##############
 ##Переменные##
 ##############
-global key
-global cikl
-global x
-global y
-global chisl
+global key, chisl, x, y, cikl
 
 chisl = ''
 x = 0
@@ -93,7 +89,7 @@ if next_day == 7:
 async def started():
     global message_for_see
     try:
-        with open (f'/home/author/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
+        with open (f'/home/{os.getlogin()}/horde/info_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html') as file:
             src1 = file.read()
 
         soup1 = BeautifulSoup(src1, "lxml")
@@ -107,8 +103,8 @@ async def started():
         all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
         all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
         message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p2.get_text()}\n{all_p4.get_text()}"
-    except Exception:
-        print('None')
+    except Exception as ext:
+        print(ext)
 
 #############################
 ##База данных пользователей##
@@ -135,7 +131,6 @@ async def week():
         chisl = 'Числитель'
     else:
         chisl = 'Знаменатель'
-    print (chisl)
     if (chisl == 'Знаменатель' and today_day==0):
         cikl = 0
         cikl1 = 6
@@ -189,10 +184,6 @@ async def start(message : types.Message):
     cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
     conn.commit()
     texter = 'Добро пожаловать в petroshedulebot, мои создатели:\nБерозко Роман\nАверин Андрей\n\nCтуденты группы 39-55'
-#    await message.answer(
-#        'Добро пожаловать в petroshedulebot, мои создатели:\nАверин Андрей\nПрохоров Евгений\nБерозко Роман\n\nCтуденты группы 39-55',
-#        reply_markup=keyboard.button_register
-#        )
     await bot.send_photo(message.from_user.id, 
         'https://www.directum.ru/application/images/catalog/34597121.PNG', 
         texter, 
@@ -203,13 +194,17 @@ async def start(message : types.Message):
 
 @dp.message_handler(text=['Регистрация'])
 async def register(message: types.Message):
-    await bot.send_message(message.from_user.id,'Кто ты?', reply_markup=keyboard.button_who)
+    await bot.send_message(message.from_user.id,'Кто ты?',
+    reply_markup=keyboard.button_who,
+    )
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":school_satchel:", use_aliases=True)}Я студент'])
 async def student_register(message: types.Message):
     await States.group.set()
-    await bot.send_message(message.from_user.id, 'Напиши номер своей группы')
+    await bot.send_message(message.from_user.id,
+    'Напиши номер своей группы',
+    )
 
 
 @dp.message_handler(state=States.group)
@@ -328,7 +323,9 @@ async def times_setting_set (message: types.Message, state = FSMContext):
 
 @dp.message_handler(text=[f'{emoji.emojize(":book:", use_aliases=True)}Пары на сегодня/завтра'])
 async def change_day(message: types.Message):
-    await message.answer('На какой день вы хотите получать расписание в установленное время?', reply_markup=keyboard.btn_change_day)
+    await message.answer('На какой день вы хотите получать расписание в установленное время?',
+    reply_markup=keyboard.btn_change_day,
+    )
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":notebook:", use_aliases=True)}На сегодня'])
@@ -355,8 +352,7 @@ async def schedule_menu(message: types.Message):
 @dp.message_handler(text=[f'{emoji.emojize(":page_facing_up:", use_aliases=True)}Расписание на сегодня'])
 async def schedule_today(message: types.Message):
     await week()
-    global cikl
-    global key
+    global cikl, key
     if(cikl==100):
         await message.answer('Нет расписания на воскресенье')
     else:
@@ -371,8 +367,11 @@ async def schedule_today(message: types.Message):
             group_num = [list(result[0])[1]][0]
             text = ''
             while cikl < key:
-                if (s1[cikl] == 'nan'):
-                    print('1')
+                skip = str(s1[cikl])
+                if (skip == 'nan'):
+                    text = f'{text}\n\n{para_num} пара:\n  -'
+                    cikl = cikl + 1
+                    para_num = para_num + 1
                 else:
                     text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
                     cikl = cikl + 1
@@ -383,7 +382,8 @@ async def schedule_today(message: types.Message):
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                b1 = " "
+                print(res1)
+                b1 = ""
                 schet = 0
                 for row in res1:
                     schet = schet + 1
@@ -392,8 +392,21 @@ async def schedule_today(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-            except Exception:
-                print('Bad zamen today student')
+                conn = sqlite3.connect('zamen1.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                print(res1)
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception as ext:
+                print(ext)
             await message.answer(b1)
 
 
@@ -408,9 +421,13 @@ async def schedule_today(message: types.Message):
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
                 prepodavat = [list(result[0])[1]][0]
                 text = ''
+                skip = ''
                 while cikl < key:
-                    if (s1[cikl] == 'nan'):
-                        print('1')
+                    skip = str(s1[cikl])
+                    if (skip == 'nan'):
+                        text = f'{text}\n\n{para_num} пара:\n  -'
+                        cikl = cikl + 1
+                        para_num = para_num + 1
                     else:
                         text = f'{text}\n\n{para_num} пара:\n  {s1[cikl]}'
                         cikl = cikl + 1
@@ -430,8 +447,20 @@ async def schedule_today(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-                except Exception:
-                    print('Bad zamen today prepodavat')
+                    conn = sqlite3.connect('zamen1.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                except Exception as ext:
+                    print(ext)
                 await message.answer(b1)
             except Exception:
                 await message.answer('Если вы не получили расписание проверьте профиль')
@@ -440,8 +469,7 @@ async def schedule_today(message: types.Message):
 @dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
     await week()
-    global cikl1
-    global key1
+    global cikl1, key1
     if(cikl1==100):
         await message.answer('Нет расписания на воскресенье')
     else:
@@ -454,10 +482,14 @@ async def schedule_next_day(message: types.Message):
             stud = pd.read_excel(f'stud_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
             s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
             group_num = [list(result[0])[1]][0]
+            skip = ''
             text = ''
             while cikl1 < key1:
-                if (s1[cikl1] == 'nan'):
-                    print('1')
+                skip = str(s1[cikl1])
+                if (skip == 'nan'):
+                    text = f'{text}\n\n{para_num} пара:\n  -'
+                    cikl1 = cikl1 + 1
+                    para_num = para_num + 1
                 else:
                     text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
                     cikl1 = cikl1 + 1
@@ -477,8 +509,20 @@ async def schedule_next_day(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-            except Exception:
-                print('Bad zamen next day student')
+                conn = sqlite3.connect('zamen_next1.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception as ext:
+                print(ext)
             await message.answer(b1)
 
         except Exception:
@@ -491,10 +535,14 @@ async def schedule_next_day(message: types.Message):
                 stud = pd.read_excel(f'prep_{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.xlsx')
                 s1 =(stud[f'{[list(result[0])[1]][0]}'].tolist())
                 prepodavat = [list(result[0])[1]][0]
+                skip = ''
                 text = ''
                 while cikl1 < key1:
-                    if (s1[cikl1] == 'nan'):
-                        print('1')
+                    skip = str(s1[cikl1])
+                    if (skip == 'nan'):
+                        text = f'{text}\n\n{para_num} пара:\n  -'
+                        cikl1 = cikl1 + 1
+                        para_num = para_num + 1  
                     else:
                         text = f'{text}\n\n{para_num} пара:\n  {s1[cikl1]}'
                         cikl1 = cikl1 + 1
@@ -514,8 +562,20 @@ async def schedule_next_day(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-                except Exception:
-                    print('Bad zamen today prepodavat')
+                    conn = sqlite3.connect('zamen_next1.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                except Exception as ext:
+                    print(f'Bad zamen today prepodavat\n{ext}')
                 await message.answer(b1)
             except Exception:
                 await message.answer('Если вы не получили расписание проверьте профиль')
@@ -529,7 +589,7 @@ async def main_menu (message: types.Message):
     if x == 1:
         sost = f"Вкл{emoji.emojize(':white_check_mark:', use_aliases=True)}"
     await bot.send_message(message.from_user.id, 
-        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n!!!ВНИМАНИЕ!!!\nЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР КАКОЙ ЛИБО ГРУППЫ', 
+        f'Добро пожаловать в главное меню.\nЗдесь вы можете настроить уведомления\nА также получить расписание вручную\n\nСостояние уведомлений: {sost}\n\n{emoji.emojize(":exclamation:", use_aliases=True)}ЧТОБЫ ПОЛУЧАТЬ РАСПИСАНИЕ НА ПРЕПОДАВАТЕЛЯ У ВАС НЕ ДОЛЖЕН БЫТЬ УСТАНОВЛЕН НОМЕР ГРУППЫ{emoji.emojize(":exclamation:", use_aliases=True)}', 
         reply_markup=keyboard.button_main,
         )
 
@@ -548,11 +608,7 @@ async def student (message: types.Message):
         result = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT OR REPLACE INTO users VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав:\n/start')
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":mortar_board:", use_aliases=True)}Преподаватель'])
@@ -564,11 +620,7 @@ async def profile1 (message:types.Message):
         result1 = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова', reply_markup = keyboard.button_who)
-        conn = sqlite3.connect('users_database.db')
-        cur = conn.cursor()
-        cur.execute(f'INSERT OR REPLACE INTO prepod VALUES("{message.from_user.id}","0","0")')
-        conn.commit()
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав:\n/start')
 
 
 @dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
@@ -598,7 +650,8 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
             await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
             await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
             await state.finish()
-    except Exception:
+    except Exception as ext:
+        print(ext)
         await message.answer('Сообщение не доставлено одному из администраторов но вам в скором времени ответят')
         await state.finish()
 
@@ -638,8 +691,8 @@ async def Adm1_setting(message: types.message, state=FSMContext):
                 await state.finish()
         else:
             await message.answer('This command admin only') 
-    except Exception:
-        print('Bad1')
+    except Exception as ext:
+        print(f'Bad1\n{ext}')
 
 
 @dp.message_handler(commands=['adm1'])
@@ -662,17 +715,17 @@ async def Adm1_st(message: types.message, state=FSMContext):
                 await state.finish()
         else:
             await message.answer('This command admin only')    
-    except Exception:
-        print ("bad")
+    except Exception as ext:
+        print (f"bad\n{ext}")
 
 
 @dp.message_handler(commands=['start_f'])
 async def start_f (message: types.Message):
-    aioschedule.every(60).minutes.do(search)
-    aioschedule.every(64).minutes.do(buti)
     while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
+        await search()
+        await asyncio.sleep(300)
+        await buti()
+        await asyncio.sleep(3600)
         
 
 @dp.message_handler(commands=['adm_usr_list'])
@@ -690,8 +743,8 @@ async def scheduler(message: types.Message, time):
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
-    except Exception:
-        print ('Trouble with schedule')
+    except Exception as ext:
+        print (f'Trouble with schedule\n{ext}')
 
 async def scheduler_td(message: types.Message, time):
     global x
@@ -700,8 +753,8 @@ async def scheduler_td(message: types.Message, time):
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
-    except Exception:
-        print ('Trouble with schedule')
+    except Exception as ext:
+        print (f'Trouble with schedule\n{ext}')
 
 
 @dp.message_handler(commands=['test'])
