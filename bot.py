@@ -352,8 +352,7 @@ async def schedule_menu(message: types.Message):
 @dp.message_handler(text=[f'{emoji.emojize(":page_facing_up:", use_aliases=True)}Расписание на сегодня'])
 async def schedule_today(message: types.Message):
     await week()
-    global cikl
-    global key
+    global cikl, key
     if(cikl==100):
         await message.answer('Нет расписания на воскресенье')
     else:
@@ -383,7 +382,6 @@ async def schedule_today(message: types.Message):
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                print(res1)
                 b1 = ""
                 schet = 0
                 for row in res1:
@@ -397,7 +395,6 @@ async def schedule_today(message: types.Message):
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                print(res1)
                 schet = 0
                 for row in res1:
                     schet = schet + 1
@@ -470,8 +467,7 @@ async def schedule_today(message: types.Message):
 @dp.message_handler(text=[f'{emoji.emojize(":page_with_curl:", use_aliases=True)}Расписание на завтра'])
 async def schedule_next_day(message: types.Message):
     await week()
-    global cikl1
-    global key1
+    global cikl1, key1
     if(cikl1==100):
         await message.answer('Нет расписания на воскресенье')
     else:
@@ -610,7 +606,7 @@ async def student (message: types.Message):
         result = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Студент:\nID = {list(result[0])[0]}\nGroup = {[list(result[0])[1]][0]}\nTime = {[list(result[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав /start')
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав:\n/start')
 
 
 @dp.message_handler(text=[f'{emoji.emojize(":mortar_board:", use_aliases=True)}Преподаватель'])
@@ -622,7 +618,7 @@ async def profile1 (message:types.Message):
         result1 = cur.fetchall()
         await bot.send_message(message.from_user.id, f'Преподаватель:\nID = {list(result1[0])[0]}\nФИО = {[list(result1[0])[1]][0]}\nTime = {[list(result1[0])[2]][0]}')
     except Exception:
-        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав /start')
+        await message.answer('Пользователь не найден, пожалуйста пройдите регистрацию снова написав:\n/start')
 
 
 @dp.message_handler(text=f'{emoji.emojize(":email:", use_aliases=True)}Помощь')
