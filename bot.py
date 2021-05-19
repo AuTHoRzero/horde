@@ -8,7 +8,6 @@ import keyboard as keyboard
 import datetime
 import calendar
 import lxml
-import json
 import time
 import random
 import asyncio
@@ -104,8 +103,8 @@ async def started():
         all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
         all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
         message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p2.get_text()}\n{all_p4.get_text()}"
-    except Exception:
-        print('None')
+    except Exception as ext:
+        print(ext)
 
 #############################
 ##База данных пользователей##
@@ -384,7 +383,8 @@ async def schedule_today(message: types.Message):
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                b1 = " "
+                print(res1)
+                b1 = ""
                 schet = 0
                 for row in res1:
                     schet = schet + 1
@@ -393,8 +393,21 @@ async def schedule_today(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-            except Exception:
-                print('Bad zamen today student')
+                conn = sqlite3.connect('zamen1.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                print(res1)
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception as ext:
+                print(ext)
             await message.answer(b1)
 
 
@@ -435,8 +448,20 @@ async def schedule_today(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-                except Exception:
-                    print('Bad zamen today prepodavat')
+                    conn = sqlite3.connect('zamen1.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                except Exception as ext:
+                    print(ext)
                 await message.answer(b1)
             except Exception:
                 await message.answer('Если вы не получили расписание проверьте профиль')
@@ -486,8 +511,20 @@ async def schedule_next_day(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-            except Exception:
-                print('Bad zamen next day student')
+                conn = sqlite3.connect('zamen_next1.db')
+                cur = conn.cursor()
+                cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
+                res1 = cur.fetchall()
+                schet = 0
+                for row in res1:
+                    schet = schet + 1
+                    a1 = f"Группа: {row[0]}"
+                    a2 = f'Номер пары: {row[1]}'
+                    a3 = f'Пара по расписанию: {row[2]}'
+                    a4 = f'Пара по замене: {row[3]}'
+                    b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+            except Exception as ext:
+                print(ext)
             await message.answer(b1)
 
         except Exception:
@@ -527,8 +564,20 @@ async def schedule_next_day(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
-                except Exception:
-                    print('Bad zamen today prepodavat')
+                    conn = sqlite3.connect('zamen_next1.db')
+                    cur = conn.cursor()
+                    cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
+                    res1 = cur.fetchall()
+                    schet = 0
+                    for row in res1:
+                        schet = schet + 1
+                        a1 = f"Группа: {row[0]}"
+                        a2 = f'Номер пары: {row[1]}'
+                        a3 = f'Пара по расписанию: {row[2]}'
+                        a4 = f'Пара по замене: {row[3]}'
+                        b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                except Exception as ext:
+                    print(f'Bad zamen today prepodavat\n{ext}')
                 await message.answer(b1)
             except Exception:
                 await message.answer('Если вы не получили расписание проверьте профиль')
@@ -603,7 +652,8 @@ async def msgtoadminist(message: types.Message, state= FSMContext):
             await bot.send_message(admin_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
             await bot.send_message(admin2_id, f'{message.from_user.username}\nНаписал:\n{tgo}')
             await state.finish()
-    except Exception:
+    except Exception as ext:
+        print(ext)
         await message.answer('Сообщение не доставлено одному из администраторов но вам в скором времени ответят')
         await state.finish()
 
@@ -643,8 +693,8 @@ async def Adm1_setting(message: types.message, state=FSMContext):
                 await state.finish()
         else:
             await message.answer('This command admin only') 
-    except Exception:
-        print('Bad1')
+    except Exception as ext:
+        print(f'Bad1\n{ext}')
 
 
 @dp.message_handler(commands=['adm1'])
@@ -667,8 +717,8 @@ async def Adm1_st(message: types.message, state=FSMContext):
                 await state.finish()
         else:
             await message.answer('This command admin only')    
-    except Exception:
-        print ("bad")
+    except Exception as ext:
+        print (f"bad\n{ext}")
 
 
 @dp.message_handler(commands=['start_f'])
@@ -695,8 +745,8 @@ async def scheduler(message: types.Message, time):
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
-    except Exception:
-        print ('Trouble with schedule')
+    except Exception as ext:
+        print (f'Trouble with schedule\n{ext}')
 
 async def scheduler_td(message: types.Message, time):
     global x
@@ -705,8 +755,8 @@ async def scheduler_td(message: types.Message, time):
         while x == 1:
             await aioschedule.run_pending()
             await asyncio.sleep(1)
-    except Exception:
-        print ('Trouble with schedule')
+    except Exception as ext:
+        print (f'Trouble with schedule\n{ext}')
 
 
 @dp.message_handler(commands=['test'])

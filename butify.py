@@ -21,6 +21,26 @@ today = datetime.date.today()
 tomorrow = today + datetime.timedelta(days=1)
 day_before = today - datetime.timedelta(days=1)
 
+#############################
+##Стираем устаревшие замены##
+#############################
+try:
+    os.remove('zamen.db')
+except Exception:
+    print ('no zamen')
+try:
+    os.remove('zamen1.db')
+except Exception:
+    print('no zamen1')
+try:
+    os.remove('zamen_next.db')
+except Exception:
+    print('no next zamen')
+try:
+    os.remove('zamen_next1.db')
+except Exception:
+    print('no next zamen1')
+
 #####################
 ##Замены на сегодня##
 #####################
@@ -47,9 +67,11 @@ try:
 #                print(f'{num_gr} {num_les} {less_do} {less_af}')
                 cur.execute(f'INSERT OR REPLACE INTO raspis VALUES("{num_gr}","{num_les}","{less_do}","{less_af}")')
                 conn.commit()
-    except Exception:
-        print('1.1')
-
+    except Exception as ext:
+        print(f'1.1\n{ext}')
+    conn = sqlite3.connect('zamen1.db')
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXISTS raspis(groups TEXT, para_n TEXT, para_rasp TEXT, para_zam TEXT)')
     try:
         table = soup.find("table", class_= 'ms-rteTable-default').find_next("table", class_= 'ms-rteTable-default')
         for rw in table.find_all("tbody"):
@@ -63,8 +85,8 @@ try:
 #                print(f'{num_gr} {num_les} {less_do} {less_af}')
                 cur.execute(f'INSERT OR REPLACE INTO raspis VALUES("{num_gr}","{num_les}","{less_do}","{less_af}")')
                 conn.commit()
-    except Exception:
-        print("1.2")
+    except Exception as ext:
+        print(f'1.2\n{ext}')
 except Exception:
     print('no today zamen')
 
@@ -97,8 +119,12 @@ try:
                     conn.commit()
                 except Exception:
                     pass
-    except Exception:
-        print("2.1")
+    except Exception as ext:
+        print(f"2.1\n{ext}")
+
+    conn = sqlite3.connect('zamen_next1.db')
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXISTS raspis(groups TEXT, para_n TEXT, para_rasp TEXT, para_zam TEXT)')
 
     try:
         table = soup.find("table", class_= 'ms-rteTable-default').find_next("table", class_= 'ms-rteTable-default')
@@ -113,10 +139,10 @@ try:
 #                print(f'{num_gr} {num_les} {less_do} {less_af}')
                 cur.execute(f'INSERT OR REPLACE INTO raspis VALUES("{num_gr}","{num_les}","{less_do}","{less_af}")')
                 conn.commit()
-    except Exception:
-        print("2.2")
-except Exception:
-    print('No next zamen')
+    except Exception as ext:
+        print(f"2.2\n{ext}")
+except Exception as ext:
+    print(f'No next zamen\n{ext}')
 
 #try:
 #    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
