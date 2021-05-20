@@ -144,11 +144,11 @@ try:
 except Exception as ext:
     print(f'No next zamen\n{ext}')
 
-#try:
-#    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
-#except Exception:
-#    print('Cant delete')
-#try:
-#    os.remove(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
-#except Exception:
-#    print('Cant delete 2')
+try:
+    os.remove(f'/home/{os.getlogin()}/horde/{tomorrow.strftime("%d")}.{tomorrow.strftime("%m")}.{tomorrow.year}.html')
+except Exception:
+    print('Cant delete')
+try:
+    os.remove(f'/home/{os.getlogin()}/horde/{today.strftime("%d")}.{today.strftime("%m")}.{today.year}.html')
+except Exception:
+    print('Cant delete 2')
