@@ -378,12 +378,15 @@ async def schedule_today(message: types.Message):
                     para_num = para_num + 1
             await message.answer(text)
             try:
+                i = '1'
+                num_para = ''
                 conn = sqlite3.connect('zamen.db')
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
                 print(res1)
                 b1 = ""
+                first_lession = ''
                 schet = 0
                 for row in res1:
                     schet = schet + 1
@@ -392,6 +395,9 @@ async def schedule_today(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                    num_para = str(a2)
+                    if num_para.__contains__(i):
+                        first_lession = first_lession + f'ЗАМЕНА НА ПЕРВУЮ ПАРУ!!!:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 conn = sqlite3.connect('zamen1.db')
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
@@ -405,9 +411,10 @@ async def schedule_today(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                    
             except Exception as ext:
                 print(ext)
-            await message.answer(b1)
+            await message.answer(f'{first_lession}{b1}')
 
 
         except Exception:
