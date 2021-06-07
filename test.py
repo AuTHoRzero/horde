@@ -95,14 +95,15 @@ async def started():
         soup1 = BeautifulSoup(src1, "lxml")
 
         all_p = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p2_2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
-        message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p2.get_text()}\n{all_p4.get_text()}"
+#        all_p1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p2_1 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p2_2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p2 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p2_3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p3 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        all_p4 = soup1.find("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p").find_next("p")
+#        message_for_see = f"{all_p.get_text()}\n{all_p1.get_text()}\n{all_p2_1.get_text()}\n{all_p2_2.get_text()}\n\n{all_p2_3.get_text()}\n{all_p3.get_text()}\n{all_p2.get_text()}\n{all_p4.get_text()}"
+        message_for_see = f"{all_p.get_text()}"
     except Exception as ext:
         print(ext)
 
@@ -384,7 +385,6 @@ async def schedule_today(message: types.Message):
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                print(res1)
                 b1 = ""
                 first_lession = ''
                 schet = 0
@@ -397,13 +397,13 @@ async def schedule_today(message: types.Message):
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                     num_para = str(a2)
                     if num_para.__contains__(i):
-                        first_lession = first_lession + f'ЗАМЕНА НА ПЕРВУЮ ПАРУ!!!:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                        first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 conn = sqlite3.connect('zamen1.db')
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
-                print(res1)
                 schet = 0
+                num_para = ''
                 for row in res1:
                     schet = schet + 1
                     a1 = f"Группа: {row[0]}"
@@ -411,6 +411,9 @@ async def schedule_today(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                    num_para = str(a2)
+                    if num_para.__contains__(i):
+                        first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                     
             except Exception as ext:
                 print(ext)
@@ -446,6 +449,8 @@ async def schedule_today(message: types.Message):
                     cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
                     res1 = cur.fetchall()
                     b1 = " "
+                    i = '1'
+                    first_lession = ''
                     schet = 0
                     for row in res1:
                         schet = schet + 1
@@ -454,11 +459,15 @@ async def schedule_today(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                        num_para = str(a2)
+                        if num_para.__contains__(i):
+                            first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                     conn = sqlite3.connect('zamen1.db')
                     cur = conn.cursor()
                     cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
                     res1 = cur.fetchall()
                     schet = 0
+                    num_para = ''
                     for row in res1:
                         schet = schet + 1
                         a1 = f"Группа: {row[0]}"
@@ -466,9 +475,12 @@ async def schedule_today(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                        num_para = str(a2)
+                        if num_para.__contains__(i):
+                            first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 except Exception as ext:
                     print(ext)
-                await message.answer(b1)
+                await message.answer(f'{first_lession}{b1}')
             except Exception:
                 await message.answer('Если вы не получили расписание проверьте профиль')
 
@@ -503,11 +515,14 @@ async def schedule_next_day(message: types.Message):
                     para_num = para_num + 1
             await message.answer(text)
             try:
+                i = '1'
                 conn = sqlite3.connect('zamen_next.db')
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
                 b1 = " "
+                first_lession = ''
+                num_para = ''
                 schet = 0
                 for row in res1:
                     schet = schet + 1
@@ -516,11 +531,15 @@ async def schedule_next_day(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                    num_para = str(a2)
+                    if num_para.__contains__(i):
+                        first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 conn = sqlite3.connect('zamen_next1.db')
                 cur = conn.cursor()
                 cur.execute(f'SELECT * FROM raspis WHERE groups LIKE "%{group_num}%"')
                 res1 = cur.fetchall()
                 schet = 0
+                num_para = ''
                 for row in res1:
                     schet = schet + 1
                     a1 = f"Группа: {row[0]}"
@@ -528,9 +547,12 @@ async def schedule_next_day(message: types.Message):
                     a3 = f'Пара по расписанию: {row[2]}'
                     a4 = f'Пара по замене: {row[3]}'
                     b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                    num_para = str(a2)
+                    if num_para.__contains__(i):
+                        first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
             except Exception as ext:
                 print(ext)
-            await message.answer(b1)
+            await message.answer(f'{first_lession}{b1}')
 
         except Exception:
             try:
@@ -556,6 +578,9 @@ async def schedule_next_day(message: types.Message):
                         para_num = para_num + 1
                 await message.answer(text)
                 try:
+                    i = '1'
+                    num_para = ''
+                    first_lession = ''
                     conn = sqlite3.connect('zamen_next.db')
                     cur = conn.cursor()
                     cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
@@ -569,11 +594,15 @@ async def schedule_next_day(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                        num_para = str(a2)
+                        if num_para.__contains__(i):
+                            first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                     conn = sqlite3.connect('zamen_next1.db')
                     cur = conn.cursor()
                     cur.execute(f'SELECT * FROM raspis WHERE para_zam LIKE "%{prepodavat}%"')
                     res1 = cur.fetchall()
                     schet = 0
+                    num_para = ''
                     for row in res1:
                         schet = schet + 1
                         a1 = f"Группа: {row[0]}"
@@ -581,10 +610,13 @@ async def schedule_next_day(message: types.Message):
                         a3 = f'Пара по расписанию: {row[2]}'
                         a4 = f'Пара по замене: {row[3]}'
                         b1 = b1 + f'Замена:{schet}\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
+                        num_para = str(a2)
+                        if num_para.__contains__(i):
+                            first_lession = first_lession + f'{emoji.emojize(":exclamation:", use_aliases=True)}ЗАМЕНА НА ПЕРВУЮ ПАРУ{emoji.emojize(":exclamation:", use_aliases=True)}:\n{a1}\n{a2}\n{a3}\n{a4}\n\n'
                 except Exception as ext:
                     print(f'Bad zamen today prepodavat\n{ext}')
-                await message.answer(b1)
-            except Exception:
+                await message.answer(f'{first_lession}{b1}')
+            except Exception as ext:
                 await message.answer('Если вы не получили расписание проверьте профиль')
 
 
