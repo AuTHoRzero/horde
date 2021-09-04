@@ -33,6 +33,13 @@ from bs4 import BeautifulSoup
 from markdown import markdown
 from pprint import pprint
 
+
+def steare():
+    subprocess.Popen(['python3', 'take_resp.py'])
+    subprocess.Popen(['python3', 'butify.py'])
+
+
+
 ##############
 ##Переменные##
 ##############
@@ -669,12 +676,12 @@ async def user_help (message: types.Message):
     'https://sun9-64.userapi.com/impg/v9TI88OR_8UV_CJ2u2FRJlSjFiRhpoh_lFKSFg/jPCHxw5V4WQ.jpg?size=1125x1077&quality=96&sign=b62f3c74fd48e7831d66add4eb792715&type=album',
     ]
     await bot.send_photo(message.from_user.id, photo[random.randint(0,2)])
-    await message.answer('Отправить сообщение разработчикам: /msgtadm\nПройти регистрацию с самого начала /start\n\n©Author', reply_markup = keyboard.btn_back)
+    await message.answer('Отправить сообщение разработчикам:\n /msgtadm\nПройти регистрацию с самого начала: \n /start\n\n©Author', reply_markup = keyboard.btn_back)
     
 #dop commands
 @dp.message_handler(commands=['msgtadm'])
 async def msgtoadmins(message: types.Message):
-    await message.answer('!!!Нужно обязательно указать ник телеграм!!!\nВаше сообщение:')
+    await message.answer('Укажите в настройках ник телеграм, чтобы мы смогли вам ответить)\nВаше сообщение:')
     await States.sndmsg.set()
 
 
